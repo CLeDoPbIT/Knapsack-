@@ -10,17 +10,19 @@
 #include <vector>
 #include <chrono>
 #include <locale.h>
-#include "problem.h"
+#include "classical_dp.h"
 
-class Classic_DP_Solver {
+class DP_with_lower_bound_Solver
+{
 public:
 	int W;
 	int number_items;
 	std::vector <int> values;
 	std::vector <int> weights;
 	int** table;
-	Classic_DP_Solver(std::vector <int> tmp_values, std::vector <int> tmp_weights, int tmp_W, int tmp_number_items);
+	DP_with_lower_bound_Solver(std::vector <int> tmp_values, std::vector <int> tmp_weights, int tmp_W, int tmp_number_items);
 	int** create2DArray(unsigned height, unsigned width);
 	int** get_table();
 	int solve();
 };
+
