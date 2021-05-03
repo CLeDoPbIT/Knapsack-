@@ -19,12 +19,14 @@ struct Subject
 };
 
 
-bool compare_subjects(Subject a, Subject b) {
+bool compare_subjects_(Subject a, Subject b) {
 	return a.weight < b.weight;
 }
 
 
 int DP_with_lower_bound_Solver::solve() {
+	table = create2DArray(number_items + 1, W + 1);
+
 	int counter = 0;
 	std::vector<Subject> subjects;
 
@@ -35,7 +37,7 @@ int DP_with_lower_bound_Solver::solve() {
 		subjects.push_back(tmp);
 	}
 	subjects[0].weight = -1;
-	std::sort(subjects.begin(), subjects.end(), compare_subjects);
+	std::sort(subjects.begin(), subjects.end(), compare_subjects_);
 
 	int* left_bounds = 0;
 	left_bounds = new int [number_items+1];

@@ -17,7 +17,6 @@ Classic_DP_Solver::Classic_DP_Solver(std::vector<int> tmp_values, std::vector<in
 	number_items = tmp_number_items;
 	values = tmp_values;
 	weights = tmp_weights;
-	table = create2DArray(number_items+1, W+1);
 }
 int** Classic_DP_Solver::create2DArray(unsigned height, unsigned width)
 {
@@ -38,6 +37,7 @@ int** Classic_DP_Solver::create2DArray(unsigned height, unsigned width)
 };
 int** Classic_DP_Solver::get_table() { return table; }
 int Classic_DP_Solver::solve() {
+	table = create2DArray(number_items + 1, W + 1);
 	int counter = 0;
 	//std::chrono::steady_clock::time_point start_time, end_time;
 

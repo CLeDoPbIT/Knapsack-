@@ -31,7 +31,7 @@ void run_one_problem(Problem problem, std::string method) {
 	std::vector <float> run_time;
 	std::chrono::steady_clock::time_point start_time, end_time;
 	int solution = 0;
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 3; i++) {
 		start_time = std::chrono::steady_clock::now();
 		if (method == "Classical_DP") {
 			solution = solver_dp.solve();
@@ -52,14 +52,14 @@ void run_one_problem(Problem problem, std::string method) {
 
 
 int main(int argc, char** argv) {
-	std::string text;
+	std::string text; 
 
 	std::vector<std::string>path_to_folders = { "data/large_scale",
 			"data/large_scale-optimum",
 			"data/low-dimensional",
 			"data/low-dimensional-optimum" };
 
-	std::string filepath = path_to_folders[0] + "/knapPI_1_1000_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000"
+	std::string filepath = path_to_folders[0] + "/knapPI_1_5000_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
 
 
 	Problem problem;
