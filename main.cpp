@@ -14,7 +14,9 @@
 #include "classical_dp.h"
 #include "dp_with_lower_bound.h"
 #include "dp_with_cache.h"
-
+#include "dp_with_lower_bounds_and_cache.h"
+#include "classical_bnb.h"
+#include "bnb_with_cache.h"
 
 void run_one_problem(Problem problem, std::string method) {
 
@@ -27,7 +29,9 @@ void run_one_problem(Problem problem, std::string method) {
 	Classic_DP_Solver solver_dp(values, weights, W, number_items);
 	DP_with_lower_bound_Solver solver_dp_with_left_bounds(values, weights, W, number_items);
 	DP_With_Cache_Solver solver_dp_with_cache(values, weights, W, number_items);
-
+	DP_With_Lower_Bounds_and_Cache_Solver solver_dp_with_lower_bounds_and_cache(values, weights, W, number_items);
+	Classical_BnB_Solver solver_classical_bnb(values, weights, W, number_items);
+	BnB_With_Cache_Solver solver_bnb_with_cache(values, weights, W, number_items);
 	std::vector <float> run_time;
 	std::chrono::steady_clock::time_point start_time, end_time;
 	int solution = 0;
@@ -42,6 +46,17 @@ void run_one_problem(Problem problem, std::string method) {
 		if (method == "DP_with_cache") {
 			solution = solver_dp_with_cache.solve();
 		}
+		if (method == "DP_with_lower_bounds_and_cache") {
+			solution = solver_dp_with_lower_bounds_and_cache.solve();
+		}
+		if (method == "Classical_BnB") {
+			solution = solver_classical_bnb.solve();
+		}
+		if (method == "BnB_with_cache") {
+			solution = solver_bnb_with_cache.solve();
+		}
+
+
 		end_time = std::chrono::steady_clock::now();
 		double dur_seconds = std::chrono::duration<float>(end_time - start_time).count();
 		run_time.push_back(dur_seconds);
@@ -59,13 +74,23 @@ int main(int argc, char** argv) {
 			"data/low-dimensional",
 			"data/low-dimensional-optimum" };
 
-	std::string filepath = path_to_folders[0] + "/knapPI_1_5000_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
+	std::string filepath = path_to_folders[0] + "/knapPI_3_500_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
 
 
 	Problem problem;
 	problem.read_data_from_file(filepath);
+	
+	std::vector <std::string> methods;
+	methods.push_back("Classical_DP");
+	methods.push_back("DP_with_left_bounds");
+	methods.push_back("DP_with_cache");
+	methods.push_back("DP_with_lower_bounds_and_cache");
+	methods.push_back("Classical_BnB");
+	methods.push_back("BnB_with_cache");
 
-	run_one_problem(problem, "DP_with_cache"); //  "Classical_DP" "DP_with_left_bounds" "DP_with_cache"
+	for (int i = 0; i < methods.size(); i++) {
+		run_one_problem(problem, methods[i]);
+	} //  "Classical_DP" "DP_with_left_bounds" "DP_with_cache" "DP_with_lower_bounds_and_cache" "Classical_BnB" "BnB_with_cache"
 
 	return 0;
 }
