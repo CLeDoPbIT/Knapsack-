@@ -158,7 +158,7 @@ int DP_With_Lower_Bounds_and_Cache_Solver::solve() {
 		}
 	}
 
-	std::cout << counter << std::endl;
+	//std::cout << counter << std::endl;
 
 	int tmp_max = -1;
 	for (int i = 1; i <= W + 1; i++) {

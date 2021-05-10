@@ -71,7 +71,7 @@ int DP_with_lower_bound_Solver::solve() {
 		}
 		//std::cout << std::endl;
 	}
-	std::cout << counter << std::endl;
+	//std::cout << counter << std::endl;
 
 	return table[number_items][W];
 }

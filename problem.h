@@ -28,5 +28,6 @@ public:
 	std::vector <int> get_weights();
 	void set_weights(std::vector <int>  tmp_weights);
 	void read_data_from_file(std::string filepath);
+	void generate_problem(int n);
 };
 

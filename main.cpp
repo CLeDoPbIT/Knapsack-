@@ -17,6 +17,8 @@
 #include "dp_with_lower_bounds_and_cache.h"
 #include "classical_bnb.h"
 #include "bnb_with_cache.h"
+#include "minknap.h"
+#include "expknap.h"
 
 void run_one_problem(Problem problem, std::string method) {
 
@@ -32,10 +34,29 @@ void run_one_problem(Problem problem, std::string method) {
 	DP_With_Lower_Bounds_and_Cache_Solver solver_dp_with_lower_bounds_and_cache(values, weights, W, number_items);
 	Classical_BnB_Solver solver_classical_bnb(values, weights, W, number_items);
 	BnB_With_Cache_Solver solver_bnb_with_cache(values, weights, W, number_items);
+
+	int* w = &weights[1];
+	int* p = &values[1];
+	int* x = 0;
+	x = new int[number_items];
 	std::vector <float> run_time;
 	std::chrono::steady_clock::time_point start_time, end_time;
 	int solution = 0;
-	for (int i = 0; i < 3; i++) {
+
+	exitem* f, * l;
+	exitem* a;
+	/* allocate space for test example */
+	a = (exitem*)palloc(number_items, sizeof(exitem));
+	f = a; l = &a[number_items - 1];
+	int i = 1;
+	for (exitem* j = f; j <= l; j++) {
+		j->p = values[i];
+		j->w = weights[i];
+		i++;
+	}
+
+
+	for (int i = 0; i < 1; i++) {
 		start_time = std::chrono::steady_clock::now();
 		if (method == "Classical_DP") {
 			solution = solver_dp.solve();
@@ -55,6 +76,13 @@ void run_one_problem(Problem problem, std::string method) {
 		if (method == "BnB_with_cache") {
 			solution = solver_bnb_with_cache.solve();
 		}
+		if (method == "Minknap") {
+				
+			  solution = minknap(number_items, p, w, x, W);
+		}
+		if (method == "Expknap") {
+			solution = expknap(f, l, W);
+		}
 
 
 		end_time = std::chrono::steady_clock::now();
@@ -62,7 +90,7 @@ void run_one_problem(Problem problem, std::string method) {
 		run_time.push_back(dur_seconds);
 	}
 	float average = std::accumulate(run_time.begin(), run_time.end(), 0.0) / run_time.size();
-	std::cout << "Mean run time " << average << ", Solution " << solution << std::endl;
+	std::cout << method << " mean run time " << average << ", Solution " << solution << std::endl;
 }
 
 
@@ -74,7 +102,7 @@ int main(int argc, char** argv) {
 			"data/low-dimensional",
 			"data/low-dimensional-optimum" };
 
-	std::string filepath = path_to_folders[0] + "/knapPI_3_500_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
+	std::string filepath = path_to_folders[0] + "/knapPI_3_1000_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
 
 
 	Problem problem;
@@ -82,11 +110,13 @@ int main(int argc, char** argv) {
 	
 	std::vector <std::string> methods;
 	methods.push_back("Classical_DP");
-	methods.push_back("DP_with_left_bounds");
-	methods.push_back("DP_with_cache");
-	methods.push_back("DP_with_lower_bounds_and_cache");
-	methods.push_back("Classical_BnB");
-	methods.push_back("BnB_with_cache");
+	//methods.push_back("DP_with_left_bounds");
+	//methods.push_back("DP_with_cache");
+	methods.push_back("DP_with_lower_bounds_and_cache"); // not correct 
+    //methods.push_back("Classical_BnB");
+	methods.push_back("BnB_with_cache"); // not correct 
+	methods.push_back("Minknap");
+	//methods.push_back("Expknap");
 
 	for (int i = 0; i < methods.size(); i++) {
 		run_one_problem(problem, methods[i]);

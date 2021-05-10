@@ -70,7 +70,7 @@ int Classic_DP_Solver::solve() {
 
 	//std::cout << dur_seconds << " sum time" << std::endl;
 
-	std::cout << counter << std::endl;
+	//std::cout << counter << std::endl;
 
 	return table[number_items][W];
 }

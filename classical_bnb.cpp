@@ -163,7 +163,7 @@ int Classical_BnB_Solver::solve() {
 			queue.push(v);
 
 	}
-	std::cout << counter << std::endl;
+	//std::cout << counter << std::endl;
 
 	return maxProfit;
 

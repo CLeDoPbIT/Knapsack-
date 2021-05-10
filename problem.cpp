@@ -33,3 +33,4 @@ void Problem::read_data_from_file(std::string filepath) {
 	number_items = values[0];
 	W = weights[0];
 }
+
