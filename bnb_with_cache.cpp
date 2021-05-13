@@ -76,11 +76,11 @@ bool cmp_(Item a, Item b)
 //}
 
 
-int bound_(Node u, int n, int W, Item arr[], int current_nun_item, float current_weight)
+int bound_(Node u, int n, int W, Item arr[])
 {
 	// if weight overcomes the knapsack capacity, return
 	// 0 as expected bound
-	if (current_weight >= W)
+	if (u.weight >= W)
 		return 0;
 
 	// initialize bound on profit by current profit
@@ -88,22 +88,22 @@ int bound_(Node u, int n, int W, Item arr[], int current_nun_item, float current
 
 	// start including items from index 1 more to current
 	// item index
-	int totweight = current_weight;
+	int j = u.level + 1;
+	int totweight = u.weight;
 
 	// checking index condition and knapsack capacity
 	// condition
-
-	while ((current_nun_item < n) && (totweight + arr[current_nun_item].weight <= W))
+	while ((j < n) && (totweight + arr[j].weight <= W))
 	{
-		totweight += arr[current_nun_item].weight;
-		profit_bound += arr[current_nun_item].value;
-		current_nun_item++;
+		totweight += arr[j].weight;
+		profit_bound += arr[j].value;
+		j++;
 	}
 
 	// If k is not n, include last item partially for
 	// upper bound on profit
-	if (current_nun_item <= n)
-		profit_bound += (W - totweight) * arr[current_nun_item].value / arr[current_nun_item].weight;
+	if (j < n)
+		profit_bound += (W - totweight) * arr[j].value / arr[j].weight;
 
 	return profit_bound;
 }
@@ -112,7 +112,7 @@ int bound_(Node u, int n, int W, Item arr[], int current_nun_item, float current
 std::tuple<int, float, int >  greed_solve_(int W, Item* items, int number_items) {
 	int solution = 0;
 	float current_W = W;
-	int i = 1;
+	int i = 0;
 	while ((i <= number_items) && (current_W - items[i].weight > 0)) {
 		solution = solution + items[i].value;
 		current_W = current_W - items[i].weight;
@@ -146,94 +146,96 @@ Node** BnB_With_Cache_Solver::create2DArray(unsigned height, unsigned width)
 
 
 
-int BnB_With_Cache_Solver::solve() {
-	Item* items = 0;
-	items = new Item[number_items+1];
-	for (int i = 1; i <= number_items; i++) {
-		items[i].value = values[i];
-		items[i].weight = weights[i];
-	}
-	items[0].value = std::numeric_limits<int>::max();
-	items[0].weight = 1;
-	std::sort(items, items + number_items+1, cmp_);
-	//for (int i = 0; i <= number_items;i++ ) {
-	//	std::cout << items[i].weight << " " << items[i].value << " " << items[i].value/ items[i].weight << std::endl;
-	//}
-
-	Node** table = create2DArray(number_items + 1, W + 1);
-
-	std::vector <float> time_count;
-	int* keys = 0;
-	keys = new int[W];
-	keys[0] = 1;
-
-	Node u, v;
-	int maxProfit = 0;
-	int num_greed_items = 0;
-	float w_greed = 0;
-	std::tuple<int, float, int > greed_solution;
-	greed_solution = greed_solve_(W, items, number_items);
-
-	u.profit = 0;
-
-	u.bound = bound_(u, number_items, W, items, 1, 0);
-	table[0][0] = u;
-	u.profit = std::get<0>(greed_solution);
-	table[number_items][W] = u;
-	
-	int counter = 0;
-	float ub = 0;
-	int weight = 0;
-	for (int n = 1; n <= number_items; n++) {
-		//std::cout << "----------------------" << std::endl;
-		for (int w = W; w >= 0; w--) {
-			if ((keys[w] == 1) && (w >= items[n].weight)) {
-				if (table[n - 1][w].bound > maxProfit) {
-					if (items[n].weight <= W) {
-						if (items[n].weight > w) {
-							v.profit = table[n - 1][w].profit;
-						}
-						else {
-							v.profit = std::max(table[n - 1][w].profit, table[n - 1][w - int(items[n].weight)].profit + items[n].value);
-						}
-						v.bound = bound_(v, number_items, W, items, n + 1, w);
-						table[n][w] = v;
-						counter++;
-						keys[w] = 1;
-						if (maxProfit < v.profit) {
-							maxProfit = v.profit;
-						}
-					}
-				}
-			}
-			else if ((keys[w - int(items[n].weight)] == 1) && (w >= items[n].weight))
-			{
-				if (table[n - 1][w - int(items[n].weight)].bound > maxProfit) {
-					if (items[n].weight <= W) {
-						if (items[n].weight > w) {
-							v.profit = table[n - 1][w].profit;
-						}
-						else {
-							v.profit = std::max(table[n - 1][w].profit, table[n - 1][w - int(items[n].weight)].profit + items[n].value);
-						}
-						v.bound = bound_(v, number_items, W, items, n + 1, w);
-						table[n][w] = v;
-						counter++;
-						keys[w] = 1;
-						if (maxProfit < v.profit) {
-							maxProfit = v.profit;
-						}
-					}
-				}
-			}
-		}
-
-	}
-	//std::cout << counter << std::endl;
-
-	return maxProfit;
-
-}
+//int BnB_With_Cache_Solver::solve() {
+//	Item* items = 0;
+//	items = new Item[number_items+1];
+//	for (int i = 1; i <= number_items; i++) {
+//		items[i].value = values[i];
+//		items[i].weight = weights[i];
+//	}
+//	items[0].value = std::numeric_limits<int>::max();
+//	items[0].weight = 1;
+//	std::sort(items, items + number_items+1, cmp_);
+//	//for (int i = 0; i <= number_items;i++ ) {
+//	//	std::cout << items[i].weight << " " << items[i].value << " " << items[i].value/ items[i].weight << std::endl;
+//	//}
+//
+//	//Node** table = create2DArray(number_items + 1, W + 1);
+//	Node* table = 0;
+//	table = new Node[W + 1];
+//
+//	std::vector <float> time_count;
+//	int* keys = 0;
+//	keys = new int[W];
+//	keys[0] = 1;
+//
+//	Node u, v;
+//	int num_greed_items = 0;
+//	float w_greed = 0;
+//	std::tuple<int, float, int > greed_solution;
+//	greed_solution = greed_solve_(W, items, number_items);
+//	int maxProfit = std::get<0>(greed_solution);
+//
+//	u.profit = 0;
+//
+//	u.bound = bound_(u, number_items, W, items, 1, 0);
+//	table[0] = u;
+//	//u.profit = std::get<0>(greed_solution);
+//	//table[W] = u;
+//	
+//	int counter = 0;
+//	float ub = 0;
+//	int weight = 0;
+//	for (int n = 1; n <= number_items; n++) {
+//		//std::cout << "----------------------" << std::endl;
+//		for (int w = W; w >= 0; w--) {
+//			if ((keys[w] == 1) && (w >= items[n].weight)) {
+//				if (table[w].bound > maxProfit) {
+//					if (items[n].weight <= W) {
+//						if (items[n].weight > w) {
+//							v.profit = table[w].profit;
+//						}
+//						else {
+//							v.profit = std::max(table[w].profit, table[w - int(items[n].weight)].profit + items[n].value);
+//						}
+//						v.bound = bound_(v, number_items, W, items, n + 1, w);
+//						table[w] = v;
+//						counter++;
+//						keys[w] = 1;
+//						if (maxProfit < v.profit) {
+//							maxProfit = v.profit;
+//						}
+//					}
+//				}
+//			}
+//			else if ((keys[w - int(items[n].weight)] == 1) && (w >= items[n].weight))
+//			{
+//				if (table[w - int(items[n].weight)].bound > maxProfit) {
+//					if (items[n].weight <= W) {
+//						if (items[n].weight > w) {
+//							v.profit = table[w].profit;
+//						}
+//						else {
+//							v.profit = std::max(table[w].profit, table[w - int(items[n].weight)].profit + items[n].value);
+//						}
+//						v.bound = bound_(v, number_items, W, items, n + 1, w);
+//						table[w] = v;
+//						counter++;
+//						keys[w] = 1;
+//						if (maxProfit < v.profit) {
+//							maxProfit = v.profit;
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//	}
+//	std::cout << counter << std::endl;
+//
+//	return maxProfit;
+//
+//}
 
 
 
@@ -310,15 +312,22 @@ int BnB_With_Cache_Solver::solve() {
 //	}
 //
 //	std::sort(items, items + (number_items - 1), cmp_);
-//	robin_hood::unordered_map <int, Node> cache, tmp_cache;
+//	robin_hood::unordered_flat_map <int, Node> cache, tmp_cache;
 //	
+//	//for (int i = 0; i < number_items; i++) {
+//	//	std::cout << items[i].weight << "_" << items[i].value << std::endl;
+//	//}
+//
+//
 //	Node u, v;
 //
 //	u.profit = 0;
 //	//u.bound = bound_(u, number_items, W, items, 0, 0);
 //	cache[0] = u;
 //
-//	int maxProfit = greed_solve_(W, items, number_items);
+//	std::tuple<int, float, int > greed_solution;
+//	greed_solution = greed_solve_(W, items, number_items);
+//	int maxProfit = std::get<0>(greed_solution);
 //	int counter = 0;
 //	float ub = 0;
 //	int weight = 0;
@@ -328,7 +337,7 @@ int BnB_With_Cache_Solver::solve() {
 //		for (const auto& tmp : tmp_cache) {
 //			v.profit = tmp.second.profit;
 //			v.bound = bound_(v, number_items, W, items, n, tmp.first);
-//			if (v.bound > maxProfit){
+//			if (v.bound >= maxProfit){
 //				weight = items[n].weight + tmp.first;
 //				if (weight <= W) {
 //					counter++;
@@ -352,3 +361,144 @@ int BnB_With_Cache_Solver::solve() {
 //	return maxProfit;
 //
 //}
+
+
+int BnB_With_Cache_Solver::solve() {
+	Item* items = 0;
+	items = new Item[number_items];
+	for (int i = 1; i <= number_items; i++) {
+		items[i - 1].value = values[i];
+		items[i - 1].weight = weights[i];
+	}
+
+	std::sort(items, items + (number_items - 1), cmp_);
+	robin_hood::unordered_flat_map <int, Node> cache;
+
+	//for (int i = 0; i < number_items; i++) {
+	//	std::cout << items[i].weight << "_" << items[i].value << std::endl;
+	//}
+
+
+	std::stack <Node> queue;
+	Node u, v;
+
+	u.level = -1;
+	u.profit = u.weight = 0;
+	queue.push(u);
+
+	cache[0] = u;
+
+	std::tuple<int, float, int > greed_solution;
+	greed_solution = greed_solve_(W, items, number_items);
+	int maxProfit = std::get<0>(greed_solution);
+	
+	int counter = 0;
+	float ub = 0;
+	int weight = 0;
+
+	while (!queue.empty())
+	{
+		// Dequeue a node
+
+		u = queue.top();
+		queue.pop();
+
+		// If it is starting node, assign level 0
+		if (u.level == -1)
+			v.level = 0;
+
+		// If there is nothing on next level
+		if (u.level == number_items - 1)
+			continue;
+
+		v.level = u.level + 1;
+		counter++;
+		// Do the same thing, but Without taking
+		// the item in knapsack
+		v.weight = u.weight;
+		v.profit = u.profit;
+		v.bound = bound_(v, number_items, W, items);
+		if (v.bound > maxProfit)
+			queue.push(v);
+			
+
+
+		// Else if not last node, then increment level,
+		// and compute profit of children nodes.
+
+		// Taking current level's item add current
+		// level's weight and value to node u's
+		// weight and value
+		v.weight = u.weight + items[v.level].weight;
+		v.profit = u.profit + items[v.level].value;
+
+		// If cumulated weight is less than W and
+		// profit is greater than previous profit,
+		// update maxprofit
+		if (v.weight <= W) {
+			if (v.profit > maxProfit) {
+				maxProfit = v.profit;
+			}
+			v.bound = bound_(v, number_items, W, items);
+
+			// If bound value is greater than profit,
+			// then only push into queue for further
+			// consideration
+			if (v.bound > maxProfit)
+				if (cache.count(int(v.weight))) {
+					if (cache[int(v.weight)].profit < v.profit) {
+						queue.push(v);
+						cache[int(v.weight)] = v;
+					}
+				}
+				else {
+					queue.push(v);
+					cache[int(v.weight)] = v;
+				}
+
+
+		} 
+			
+
+		// Get the upper bound on profit to decide
+		// whether to add v to Q or not.
+			
+
+	}
+	std::cout << counter << std::endl;
+
+	return maxProfit;
+
+
+
+	//for (int n = 0; n < number_items; n++) {
+	//	//std::cout << "----------------------" << std::endl;
+	//	current = queue.top();
+	//	queue.pop();
+
+	//	v.profit = current.profit;
+	//	v.bound = bound_(v, number_items, W, items, n, current.weight);
+	//	if (v.bound >= maxProfit) {
+	//		weight = items[n].weight + tmp.first;
+	//		if (weight <= W) {
+	//			counter++;
+	//			if (cache.count(weight)) {
+	//				cache[weight].profit = std::max(tmp.second.profit + items[n].value, cache[weight].profit);
+	//			}
+	//			else {
+	//				cache[weight].profit = tmp.second.profit + items[n].value;
+	//			}
+	//			if (cache[weight].profit > maxProfit) {
+	//				maxProfit = cache[weight].profit;
+	//			}
+
+	//			//std::cout << weight <<" " << cache[weight].profit << std::endl;
+	//		}
+	//	}
+	//	}
+	//}
+	//std::cout << counter << std::endl;
+
+	//return maxProfit;
+
+}

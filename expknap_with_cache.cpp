@@ -1,33 +1,33 @@
-#include "expknap.h"
+#include "expknap_with_cache.h"
 
 
 
-item_exp* br;        /* break item */
-stype   wsb;        /* profit and wight sum up to break item */
-stype   psb;
-stype   c;          /* total capacity */
-itype_exp   z;          /* lower bound */
-item_exp* fsort;
-item_exp* lsort;
-istack  s;          /* sorted interval returned by partsort */
+item_exp_with_cache* br;        /* break item */
+stype   wsb_wc;        /* profit and wight sum up to break item */
+stype   psb_wc;
+stype   c_wc;          /* total capacity */
+itype_exp   z_wc;          /* lower bound */
+item_exp_with_cache* fsort;
+item_exp_with_cache* lsort;
+istack_with_cache  s;          /* sorted interval returned by partsort */
 
-istack* ihead1, * stack1, * iend1;  /* interval stack, i < br */
-istack* ihead2, * stack2, * iend2;  /* interval stack, i > br */
-boolean** ehead, ** estack;         /* exception stack */
-char* MASSAGE = 0;
+istack_with_cache* ihead1, * stack1, * iend1;  /* interval stack, i < br */
+istack_with_cache* ihead2, * stack2, * iend2;  /* interval stack, i > br */
+boolean** ehead_wc, ** estack_wc;         /* exception stack */
+char* MASSAGE_WC = 0;
 
-FILE* trace;
-long heur;
-long dantzig;
-long touch;
-long redu;
-long sorts;
-long iterations;
+FILE* trace_wc;
+long heur_wc;
+long dantzig_wc;
+long touch_wc;
+long redu_wc;
+long sorts_wc;
+long iterations_wc;
 
 
-void sumdata()
+void sumdata_with_cache()
 {
-	std::cout << iterations << std::endl;
+	std::cout << iterations_wc << std::endl;
 	//static long n;
 	//static long r;
 	//static long t;
@@ -62,7 +62,7 @@ void sumdata()
 	//fprintf(trace, "time        = %.2lf\n", mean / (double)1);
 	//fprintf(trace, "variance    = %.2lf\n", variance / (double)1);
 	//fprintf(trace, "stddev      = %.2lf\n", stddev / (double)1);
-	
+
 }
 
 
@@ -70,16 +70,16 @@ void sumdata()
 						 error
    ====================================================================== */
 
-void error(char* str, ...)
+void error_with_cache(char* str, ...)
 {
 	va_list args;
 
 	va_start(args, str);
 	vprintf(str, args); printf("\n");
-	vfprintf(trace, str, args); fprintf(trace, "\n");
+	vfprintf(trace_wc, str, args); fprintf(trace_wc, "\n");
 	va_end(args);
-	printf("STOP !!!\n\n"); fprintf(trace, "STOP !!!\n\n");
-	fclose(trace);
+	printf("STOP !!!\n\n"); fprintf(trace_wc, "STOP !!!\n\n");
+	fclose(trace_wc);
 	exit(-1);
 }
 
@@ -88,23 +88,23 @@ void error(char* str, ...)
 				  palloc
    ====================================================================== */
 
-void pfree__(void* p)
+void pfree__with_cache(void* p)
 {
-	if (p == NULL) error(MASSAGE);
+	if (p == NULL) error_with_cache(MASSAGE_WC);
 	free(p);
 }
 
 
-void* palloc(size_t no, size_t each)
+void* palloc_with_cache(size_t no, size_t each)
 {
 	long size;
 	long* p;
 
 	size = no * (long)each;
 	if (size == 0) size = 1;
-	if (size != (size_t)size) error(MASSAGE, size);
+	if (size != (size_t)size) error_with_cache(MASSAGE_WC, size);
 	p = (long*)malloc(size);
-	if (p == NULL) error(MASSAGE, size);
+	if (p == NULL) error_with_cache(MASSAGE_WC, size);
 	return p;
 }
 
@@ -113,9 +113,9 @@ void* palloc(size_t no, size_t each)
 				showitems
    ====================================================================== */
 
-void showitems(item_exp* f, item_exp* l)
+void showitems_with_cache(item_exp_with_cache* f, item_exp_with_cache* l)
 {
-	item_exp* i;
+	item_exp_with_cache* i;
 	stype ps, ws;
 
 	printf("showitems");
@@ -133,9 +133,9 @@ void showitems(item_exp* f, item_exp* l)
 				maketest
    ====================================================================== */
 
-stype maketest(exitem* f, exitem* l, int type, int r, int v)
+stype maketest_with_cache(exitem_with_cache* f, exitem_with_cache* l, int type, int r, int v)
 {
-	register exitem* j;
+	register exitem_with_cache* j;
 	register stype sum;
 	stype c;
 	itype_exp r1;
@@ -167,17 +167,17 @@ stype maketest(exitem* f, exitem* l, int type, int r, int v)
 				testinstance
    ====================================================================== */
 
-void testinstance(exitem** f, exitem** l, int n,
+void testinstance_with_cache(exitem_with_cache** f, exitem_with_cache** l, int n,
 	int r, int type, int v)
 {
-	exitem* a;
+	exitem_with_cache* a;
 
 	/* allocate space for test example */
-	a = (exitem*)palloc(n, sizeof(exitem));
+	a = (exitem_with_cache*)palloc_with_cache(n, sizeof(exitem_with_cache));
 	*f = a; *l = &a[n - 1];
 
 	/* make test instance */
-	c = maketest(*f, *l, type, r, v);
+	c_wc = maketest_with_cache(*f, *l, type, r, v);
 }
 
 
@@ -185,9 +185,9 @@ void testinstance(exitem** f, exitem** l, int n,
 				freeinstance
    ====================================================================== */
 
-void freeinstance(exitem* f)
+void freeinstance_with_cache(exitem_with_cache* f)
 {
-	pfree__(f);
+	pfree__with_cache(f);
 }
 
 
@@ -195,11 +195,11 @@ void freeinstance(exitem* f)
 				definesolution
    ====================================================================== */
 
-void definesolution(void)
+void definesolution_with_cache(void)
 {
 	register boolean** j;
 
-	for (j = ehead; j < estack; j++)
+	for (j = ehead_wc; j < estack_wc; j++)
 	{
 		**j = 1 - **j;
 	}
@@ -210,9 +210,9 @@ void definesolution(void)
 				checksol
    ====================================================================== */
 
-long checksol(exitem* f, exitem* l, long c, long z)
+long checksol_with_cache(exitem_with_cache* f, exitem_with_cache* l, long c, long z)
 {
-	register exitem* i;
+	register exitem_with_cache* i;
 	register stype sump, sumw;
 
 	sump = 0; sumw = 0;
@@ -220,7 +220,7 @@ long checksol(exitem* f, exitem* l, long c, long z)
 		if (i->x) { sump += i->p; sumw += i->w; }
 	}
 	/* printf("sump %ld, z %ld, sumw %ld, c %ld\n", sump, z, sumw, c); */
-	if ((sumw > c) || (sump != z)) error(MASSAGE);
+	if ((sumw > c) || (sump != z)) error_with_cache(MASSAGE_WC);
 	return sump;
 }
 
@@ -229,16 +229,16 @@ long checksol(exitem* f, exitem* l, long c, long z)
 				pushe
    ====================================================================== */
 
-void cleare()
+void cleare_with_cache()
 {
-	estack = ehead;
+	estack_wc = ehead_wc;
 }
 
 
-void pushe(item_exp* i)
+void pushe_with_cache(item_exp_with_cache* i)
 {
-	*estack = i->x;
-	estack++;
+	*estack_wc = i->x;
+	estack_wc++;
 }
 
 
@@ -246,13 +246,13 @@ void pushe(item_exp* i)
 				pushi
    ====================================================================== */
 
-void pushi(istack** stack, item_exp* f, item_exp* l, stype ws)
+void pushi_with_cache(istack_with_cache** stack, item_exp_with_cache* f, item_exp_with_cache* l, stype ws)
 {
-	register istack* pos;
+	register istack_with_cache* pos;
 	pos = *stack;
 	pos->f = f; pos->l = l; pos->ws = ws;
 	(*stack)++;
-	if ((pos == iend1) || (pos == iend2)) error(MASSAGE);
+	if ((pos == iend1) || (pos == iend2)) error_with_cache(MASSAGE_WC);
 }
 
 
@@ -260,21 +260,21 @@ void pushi(istack** stack, item_exp* f, item_exp* l, stype ws)
 								   reduce
    ========================================================================= */
 
-void reduce(item_exp** f, item_exp** l)
+void reduce_with_cache(item_exp_with_cache** f, item_exp_with_cache** l)
 {
-	register item_exp* i, * j, * k;
+	register item_exp_with_cache* i, * j, * k;
 	register itype_exp pb, wb;
 	register stype q;
 
 	pb = br->p; wb = br->w;
-	q = DET(z + 1, c - wsb, pb, wb);
+	q = DET(z_wc + 1, c_wc - wsb_wc, pb, wb);
 	i = *f; j = *l;
 	if (i <= br) {
 		k = fsort - 1;
 		while (i <= j) {
-			touch++;
+			touch_wc++;
 			if (DET(-j->p, -j->w, pb, wb) < q) {
-				redu++;
+				redu_wc++;
 				SWAP(i, j); i++;       /* not feasible */
 			}
 			else {
@@ -287,9 +287,9 @@ void reduce(item_exp** f, item_exp** l)
 	else {
 		k = lsort + 1;
 		while (i <= j) {
-			touch++;
+			touch_wc++;
 			if (DET(i->p, i->w, pb, wb) < q) {
-				redu++;
+				redu_wc++;
 				SWAP(i, j); j--;       /* not feasible */
 			}
 			else {
@@ -306,10 +306,10 @@ void reduce(item_exp** f, item_exp** l)
 				partsort
    ====================================================================== */
 
-void partsort(item_exp* f, item_exp* l, stype ws)
+void partsort_with_cache(item_exp_with_cache* f, item_exp_with_cache* l, stype ws)
 {
 	register itype_exp mp, mw;
-	register item_exp* i, * j, * m = 0;
+	register item_exp_with_cache* i, * j, * m = 0;
 	register stype wi;
 	int d;
 
@@ -336,11 +336,11 @@ void partsort(item_exp* f, item_exp* l, stype ws)
 			if (i > j) break;
 			SWAP(i, j);
 		}
-		if (wi > c) {
-			pushi(&stack2, i, l, wi); partsort(f, i - 1, ws);
+		if (wi > c_wc) {
+			pushi_with_cache(&stack2, i, l, wi); partsort_with_cache(f, i - 1, ws);
 		}
 		else {
-			pushi(&stack1, f, i - 1, ws); partsort(i, l, wi);
+			pushi_with_cache(&stack1, f, i - 1, ws); partsort_with_cache(i, l, wi);
 		}
 	}
 }
@@ -350,16 +350,16 @@ void partsort(item_exp* f, item_exp* l, stype ws)
 				sorti
    ====================================================================== */
 
-boolean sorti(istack** stack)
+boolean sorti_with_cache(istack_with_cache** stack)
 /* returns TRUE if expansion succeeded, FALSE if no more intervals */
 {
-	register istack* pos;
+	register istack_with_cache* pos;
 
 	if ((*stack == ihead1) || (*stack == ihead2)) return FALSE;
 	(*stack)--;
 	pos = *stack;
-	reduce(&(pos->f), &(pos->l));
-	partsort(pos->f, pos->l, pos->ws);
+	reduce_with_cache(&(pos->f), &(pos->l));
+	partsort_with_cache(pos->f, pos->l, pos->ws);
 	if (s.f < fsort) fsort = s.f;
 	if (s.l > lsort) lsort = s.l;
 	return TRUE;
@@ -371,33 +371,92 @@ boolean sorti(istack** stack)
    ====================================================================== */
 
 
-short elebranch(itype_exp ps, itype_exp ws, item_exp* s, item_exp* t)
+//short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, item_exp_with_cache* t, robin_hood::unordered_flat_map<int,int> cache)
+//{
+//	short improved;
+//
+//	iterations_wc++;
+//	improved = FALSE;
+//	boolean returned = FALSE;
+//
+//	if (ws <= 0) {
+//		if (ps > z_wc) {
+//			improved = TRUE;
+//			z_wc = ps;
+//			cleare_with_cache();
+//		}
+//		for (;;) {
+//			if (t > lsort) { if (!sorti_with_cache(&stack2)) break; }
+//			if (DET(ps - (z_wc + 1), ws, t->p, t->w) < 0) break;
+//			if (cache.count(ws + t->w)) {
+//				if (cache[ws + t->w] < ps + t->p) {
+//					cache[ws + t->w] = ps + t->p;
+//					returned = elebranch_with_cache(ps + t->p, ws + t->w, s, t + 1, cache);
+//				}
+//			}
+//			else {
+//				returned = elebranch_with_cache(ps + t->p, ws + t->w, s, t + 1, cache);
+//			}
+//			if (returned) {
+//				improved = TRUE; pushe_with_cache(t);
+//			}
+//			t++;
+//		}
+//	}
+//	else {
+//		for (;;) {
+//			if (s < fsort) { if (!sorti_with_cache(&stack1)) break; }
+//			if (DET(ps - (z_wc + 1), ws, s->p, s->w) < 0) break;
+//			returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache);
+//			if (returned) {
+//				improved = TRUE; pushe_with_cache(s);
+//			}
+//			s--;
+//		}
+//	}
+//	return improved;
+//}
+
+short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, item_exp_with_cache* t, int* cache)
 {
 	short improved;
-	//std::cout << iterations << " " << z << " "<<  z + psb << " " << t->w << " "<< s->w <<std::endl;
-	iterations++;
+
+	iterations_wc++;
 	improved = FALSE;
+	boolean returned = FALSE;
+
 	if (ws <= 0) {
-		if (ps > z) {
+		if (ps > z_wc) {
 			improved = TRUE;
-			z = ps;
-			cleare();
+			z_wc = ps;
+			cleare_with_cache();
 		}
 		for (;;) {
-			if (t > lsort) { if (!sorti(&stack2)) break; }
-			if (DET(ps - (z + 1), ws, t->p, t->w) < 0) break;
-			if (elebranch(ps + t->p, ws + t->w, s, t + 1)) {
-				improved = TRUE; pushe(t);
+			if (t > lsort) { if (!sorti_with_cache(&stack2)) break; }
+			if (DET(ps - (z_wc + 1), ws, t->p, t->w) < 0) break;
+			if (cache[c_wc + ws + t->w] != -1){
+				if (cache[c_wc + ws + t->w] < ps + t->p) {
+					cache[c_wc + ws + t->w] = ps + t->p;
+					returned = elebranch_with_cache(ps + t->p, ws + t->w, s, t + 1, cache);
+				}
+			}
+			else {
+				cache[c_wc + ws + t->w] = ps + t->p;
+				returned = elebranch_with_cache(ps + t->p, ws + t->w, s, t + 1, cache);
+			}
+			if (returned) {
+				improved = TRUE; pushe_with_cache(t);
 			}
 			t++;
 		}
 	}
 	else {
 		for (;;) {
-			if (s < fsort) { if (!sorti(&stack1)) break; }
-			if (DET(ps - (z + 1), ws, s->p, s->w) < 0) break;
-			if (elebranch(ps - s->p, ws - s->w, s - 1, t)) {
-				improved = TRUE; pushe(s);
+			if (s < fsort) { if (!sorti_with_cache(&stack1)) break; }
+			if (DET(ps - (z_wc + 1), ws, s->p, s->w) < 0) break;
+			returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache);
+			if (returned) {
+				improved = TRUE; pushe_with_cache(s);
 			}
 			s--;
 		}
@@ -406,46 +465,47 @@ short elebranch(itype_exp ps, itype_exp ws, item_exp* s, item_exp* t)
 }
 
 
+
 /* ======================================================================
 				heuristic
    ====================================================================== */
 
-stype heuristic(item_exp* f, item_exp* l)
+stype heuristic_with_cache(item_exp_with_cache* f, item_exp_with_cache* l)
 {
-	register item_exp* i;
+	register item_exp_with_cache* i;
 	register stype ps, ws;
 	register itype_exp r, z, pb, dz;
 
-	ps = 0; ws = c;
+	ps = 0; ws = c_wc;
 	for (i = f; i->w <= ws; i++) {
 		ws -= i->w;
 		ps += i->p;
 		*(i->x) = 1;
 	}
-	br = i; wsb = c - ws; psb = ps;
+	br = i; wsb_wc = c_wc - ws; psb_wc = ps;
 
 	/* determine dantzig bound, and use it as upper bound on z */
-	dz = (c - wsb) * br->p / br->w;
-	dantzig = psb + dz;
+	dz = (c_wc - wsb_wc) * br->p / br->w;
+	dantzig_wc = psb_wc + dz;
 
 	/* define initial solution */
-	cleare();
+	cleare_with_cache();
 	z = 0; if (z == dz) return z;
 
 	/* forward greedy solution */
-	r = c - wsb;
+	r = c_wc - wsb_wc;
 	for (i = br; i <= l; i++) {
 		if ((i->w <= r) && (i->p > z)) {
-			cleare(); pushe(i);
+			cleare_with_cache(); pushe_with_cache(i);
 			z = i->p; if (z == dz) return z;
 		}
 	}
 
 	/* backward greedy solution */
-	r = (wsb + br->w) - c; pb = br->p;
+	r = (wsb_wc + br->w) - c_wc; pb = br->p;
 	for (i = br - 1; i >= f; i--) {
 		if ((i->w >= r) && (pb - i->p > z)) {
-			cleare(); pushe(br); pushe(i);
+			cleare_with_cache(); pushe_with_cache(br); pushe_with_cache(i);
 			z = pb - i->p; if (z == dz) return z;
 		}
 	}
@@ -458,53 +518,57 @@ stype heuristic(item_exp* f, item_exp* l)
 				expknap
    ====================================================================== */
 
-stype expknap(exitem* f, exitem* l, stype cap)
+stype expknap_with_cache(exitem_with_cache* f, exitem_with_cache* l, stype cap)
 {
-	register item_exp* j;
-	register exitem* i;
-	item_exp* fitem, * litem;
+	register item_exp_with_cache* j;
+	register exitem_with_cache* i;
+	item_exp_with_cache* fitem, * litem;
 	int n;
+	//robin_hood::unordered_flat_map <int, int> cache;
 
 	n = l - f + 1;
-	c = cap;
-	ihead1 = (istack*)palloc(SORTSTACK, sizeof(istack));
-	ihead2 = (istack*)palloc(SORTSTACK, sizeof(istack));
-	ehead = (boolean**)palloc(n, sizeof(boolean*));
-	fitem = (item_exp*)palloc(n, sizeof(item_exp));
+	c_wc = cap;
+	ihead1 = (istack_with_cache*)palloc_with_cache(SORTSTACK, sizeof(istack_with_cache));
+	ihead2 = (istack_with_cache*)palloc_with_cache(SORTSTACK, sizeof(istack_with_cache));
+	ehead_wc = (boolean**)palloc_with_cache(n, sizeof(boolean*));
+	fitem = (item_exp_with_cache*)palloc_with_cache(n, sizeof(item_exp_with_cache));
 	litem = fitem + n - 1;
 	stack1 = ihead1; iend1 = ihead1 + SORTSTACK;
 	stack2 = ihead2; iend2 = ihead2 + SORTSTACK;
 
 	/* copy items to own array */
+	int iter_cache = 0;
 	for (i = f, j = fitem; i <= l; i++, j++) {
 		j->p = i->p; j->w = i->w; j->x = &(i->x); i->x = 0;
+		iter_cache++;
 	}
 
 	/* find break item */
-	partsort(fitem, litem, 0);
+	partsort_with_cache(fitem, litem, 0);
 	fsort = s.f; lsort = s.l;
 
 	/* solve problem */
-	z = heuristic(fitem, litem);
-	heur = z + psb;
+	z_wc = heuristic_with_cache(fitem, litem);
+	heur_wc = z_wc + psb_wc;
+	
+	int* cache = 0;
+	cache = new int[2*c_wc];
+	std::fill_n(cache, 2 * c_wc, -1);
 
-	//int* cache = 0;
-	//cache = new int[2*c];
-	//for (int i = 0; i < 2*c; i++)
+	//for (int i = 0; i < 2*c_wc; i++)
 	//	cache[i] = -1;
 
-
-	elebranch(0, wsb - c, br - 1, br);
+	elebranch_with_cache(0, wsb_wc - c_wc, br - 1, br, cache);
 
 	/* define solution */
-	definesolution();
+	definesolution_with_cache();
 
-	pfree__(ihead1);
-	pfree__(ihead2);
-	pfree__(ehead);
-	pfree__(fitem);
-	sorts = lsort - fsort + 1;
-	return z + psb;
+	pfree__with_cache(ihead1);
+	pfree__with_cache(ihead2);
+	pfree__with_cache(ehead_wc);
+	pfree__with_cache(fitem);
+	sorts_wc = lsort - fsort + 1;
+	return z_wc + psb_wc;
 }
 
 
@@ -512,65 +576,65 @@ stype expknap(exitem* f, exitem* l, stype cap)
 				main
    ====================================================================== */
 
-//void main(int argc, char* argv[])
-//{
-//	exitem* f, * l;
-//	stype z;
-//	long time;
-//	int n, r, type, v;
-//
-//	//if (argc == 4) {
-//	//	n = atoi(argv[1]);
-//	//	r = atoi(argv[2]);
-//	//	type = atoi(argv[3]);
-//	//	printf("Expknap %d, %d, %d\n", n, r, type);
-//	//}
-//	//else {
-//	//	printf("Expknap\n");
-//	//	printf("n = ");
-//	//	scanf("%d", &n);
-//	//	printf("r = ");
-//	//	scanf("%d", &r);
-//	//	printf("t = ");
-//	//	scanf("%d", &type);
-//	//}
-//
-//	//trace = fopen("trace.exp", "a");
-//
-//	n = 5;
-//	r = 11;
-//	type = 1;
-//
-//	for (v = 1; v <= TESTS; v++) {
-//		srand(v);
-//		iterations = 0;
-//		redu = 0;
-//		touch = 0;
-//		testinstance(&f, &l, n, r, type, v);
-//
-//		std::vector<exitem> task;
-//		for (exitem* e = f; e <= l; e++)
-//		{
-//			task.push_back(*e);
-//		}
-//
-//		// starttime();
-//		z = expknap(f, l, c);
-//
-//		std::vector<exitem> sol;
-//		for (exitem* e = f; e <= l; e++)
-//		{
-//			sol.push_back(*e);
-//		}
-//		//  endtime(&time);
-//
-//		  /* check solution */
-//		checksol(f, l, c, z);
-//
-//		freeinstance(f);
-//		sumdata(n, r, type, iterations, heur, z,
-//			c, dantzig, touch, redu, sorts);
-//	}
-//	sumdata(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-//	fclose(trace);
-//}
+   //void main(int argc, char* argv[])
+   //{
+   //	exitem* f, * l;
+   //	stype z;
+   //	long time;
+   //	int n, r, type, v;
+   //
+   //	//if (argc == 4) {
+   //	//	n = atoi(argv[1]);
+   //	//	r = atoi(argv[2]);
+   //	//	type = atoi(argv[3]);
+   //	//	printf("Expknap %d, %d, %d\n", n, r, type);
+   //	//}
+   //	//else {
+   //	//	printf("Expknap\n");
+   //	//	printf("n = ");
+   //	//	scanf("%d", &n);
+   //	//	printf("r = ");
+   //	//	scanf("%d", &r);
+   //	//	printf("t = ");
+   //	//	scanf("%d", &type);
+   //	//}
+   //
+   //	//trace = fopen("trace.exp", "a");
+   //
+   //	n = 5;
+   //	r = 11;
+   //	type = 1;
+   //
+   //	for (v = 1; v <= TESTS; v++) {
+   //		srand(v);
+   //		iterations = 0;
+   //		redu = 0;
+   //		touch = 0;
+   //		testinstance(&f, &l, n, r, type, v);
+   //
+   //		std::vector<exitem> task;
+   //		for (exitem* e = f; e <= l; e++)
+   //		{
+   //			task.push_back(*e);
+   //		}
+   //
+   //		// starttime();
+   //		z = expknap(f, l, c);
+   //
+   //		std::vector<exitem> sol;
+   //		for (exitem* e = f; e <= l; e++)
+   //		{
+   //			sol.push_back(*e);
+   //		}
+   //		//  endtime(&time);
+   //
+   //		  /* check solution */
+   //		checksol(f, l, c, z);
+   //
+   //		freeinstance(f);
+   //		sumdata(n, r, type, iterations, heur, z,
+   //			c, dantzig, touch, redu, sorts);
+   //	}
+   //	sumdata(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+   //	fclose(trace);
+   //}

@@ -65,6 +65,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "robin_hood.h"
 
 	   /* ======================================================================
 							macros
@@ -74,15 +75,15 @@
 #define random(x)    (rand() % (x))
 
 #define DET(a1, a2, b1, b2)        ((a1) * (long) (b2) - (a2) * (long) (b1))
-#define SWAP(a, b)             { register item_exp t; t = *a; *a = *b; *b = t; }
+#define SWAP(a, b)             { register item_exp_with_cache t; t = *a; *a = *b; *b = t; }
 #define NO(f,i)                                            ((int) ((i+1)-f))
 #define TRUE  1
 #define FALSE 0
 #define SORTSTACK 200
 #define _CRT_SECURE_NO_WARNINGS
-/* ======================================================================
-				 type declarations
-   ====================================================================== */
+		  /* ======================================================================
+						   type declarations
+			 ====================================================================== */
 
 typedef int   boolean; /* boolean variables */
 typedef short itype_exp;   /* item profits and weights */
@@ -93,21 +94,21 @@ typedef struct {
 	itype_exp   p;     /* profit */
 	itype_exp   w;     /* weight */
 	boolean x;     /* solution variable */
-} exitem;
+} exitem_with_cache;
 
 /* item as seen internally */
 typedef struct {
 	itype_exp   p;     /* profit */
 	itype_exp   w;     /* weight */
 	boolean* x;    /* pointer to original solution variable */
-} item_exp;
+} item_exp_with_cache;
 
 /* interval stack */
-typedef struct istk {
-	item_exp* f;
-	item_exp* l;
+typedef struct istk_with_cache {
+	item_exp_with_cache* f;
+	item_exp_with_cache* l;
 	stype   ws;
-} istack;
+} istack_with_cache;
 
 
 /* ======================================================================
@@ -116,135 +117,135 @@ typedef struct istk {
 
 
 
-/* ======================================================================
-				 test variables
-   ====================================================================== */
-
-
-
-/* ======================================================================
-						timing routines for hp9000/735
-   ====================================================================== */
-
-//#define  _INCLUDE_POSIX_SOURCE
-//#include <io.h>
-
-
-   //struct tms timestart, timeend;
-
-   //void starttime(void)
-   //{
-   //    times(&timestart);
-   //}
-   //
-   //void endtime(long *time)
-   //{
-   //  double t1, t2;
-   //  times(&timeend);
-   //  t1 = (double) (timeend.tms_utime-timestart.tms_utime) / sysconf(_SC_CLK_TCK);
-   //  t2 = (double) (timeend.tms_stime-timestart.tms_stime) / sysconf(_SC_CLK_TCK);
-   //  *time = t1 * 1000;
-   //}
-
-
    /* ======================================================================
-									  sumdata
+					test variables
 	  ====================================================================== */
 
-void sumdata();
+
+
+	  /* ======================================================================
+							  timing routines for hp9000/735
+		 ====================================================================== */
+
+		 //#define  _INCLUDE_POSIX_SOURCE
+		 //#include <io.h>
+
+
+			//struct tms timestart, timeend;
+
+			//void starttime(void)
+			//{
+			//    times(&timestart);
+			//}
+			//
+			//void endtime(long *time)
+			//{
+			//  double t1, t2;
+			//  times(&timeend);
+			//  t1 = (double) (timeend.tms_utime-timestart.tms_utime) / sysconf(_SC_CLK_TCK);
+			//  t2 = (double) (timeend.tms_stime-timestart.tms_stime) / sysconf(_SC_CLK_TCK);
+			//  *time = t1 * 1000;
+			//}
+
+
+			/* ======================================================================
+											   sumdata
+			   ====================================================================== */
+
+void sumdata_with_cache();
 
 
 /* ======================================================================
 						 error
    ====================================================================== */
 
-void error(char* str, ...);
+void error_with_cache(char* str, ...);
 /* ======================================================================
 				  palloc
    ====================================================================== */
 
-void pfree__(void* p);
+void pfree__with_cache(void* p);
 
-void* palloc(size_t no, size_t each);
+void* palloc_with_cache(size_t no, size_t each);
 
 
 /* ======================================================================
 				showitems
    ====================================================================== */
 
-void showitems(item_exp* f, item_exp* l);
+void showitems_with_cache(item_exp_with_cache* f, item_exp_with_cache* l);
 
 
 /* ======================================================================
 				maketest
    ====================================================================== */
 
-stype maketest(exitem* f, exitem* l, int type, int r, int v);
+stype maketest_with_cache(exitem_with_cache* f, exitem_with_cache* l, int type, int r, int v);
 
 
 /* ======================================================================
 				testinstance
    ====================================================================== */
 
-void testinstance(exitem** f, exitem** l, int n,
+void testinstance_with_cache(exitem_with_cache** f, exitem_with_cache** l, int n,
 	int r, int type, int v);
 
 /* ======================================================================
 				freeinstance
    ====================================================================== */
 
-void freeinstance(exitem* f);
+void freeinstance_with_cache(exitem_with_cache* f);
 
 
 /* ======================================================================
 				definesolution
    ====================================================================== */
 
-void definesolution(void);
+void definesolution_with_cache(void);
 
 
 /* ======================================================================
 				checksol
    ====================================================================== */
 
-long checksol(exitem* f, exitem* l, long c, long z);
+long checksol_with_cache(exitem_with_cache* f, exitem_with_cache* l, long c, long z);
 
 /* ======================================================================
 				pushe
    ====================================================================== */
 
-void cleare();
+void cleare_with_cache();
 
 
-void pushe(item_exp* i);
+void pushe_with_cache(item_exp_with_cache* i);
 
 
 /* ======================================================================
 				pushi
    ====================================================================== */
 
-void pushi(istack** stack, item_exp* f, item_exp* l, stype ws);
+void pushi_with_cache(istack_with_cache** stack, item_exp_with_cache* f, item_exp_with_cache* l, stype ws);
 
 
 /* =========================================================================
 								   reduce
    ========================================================================= */
 
-void reduce(item_exp** f, item_exp** l);
+void reduce_with_cache(item_exp_with_cache** f, item_exp_with_cache** l);
 
 
 /* ======================================================================
 				partsort
    ====================================================================== */
 
-void partsort(item_exp* f, item_exp* l, stype ws);
+void partsort_with_cache(item_exp_with_cache* f, item_exp_with_cache* l, stype ws);
 
 
 /* ======================================================================
 				sorti
    ====================================================================== */
 
-boolean sorti(istack** stack);
+boolean sorti_with_cache(istack_with_cache** stack);
 /* returns TRUE if expansion succeeded, FALSE if no more intervals */
 
 
@@ -253,18 +254,18 @@ boolean sorti(istack** stack);
 				elebranch
    ====================================================================== */
 
-short elebranch(itype_exp ps, itype_exp ws, item_exp* s, item_exp* t);
+short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, item_exp_with_cache* t, robin_hood::unordered_flat_map<int, int> cache);
 
 
 /* ======================================================================
 				heuristic
    ====================================================================== */
 
-stype heuristic(item_exp* f, item_exp* l);
+stype heuristic_with_cache(item_exp_with_cache* f, item_exp_with_cache* l);
 
 
 /* ======================================================================
 				expknap
    ====================================================================== */
 
-stype expknap(exitem* f, exitem* l, stype cap);
+stype expknap_with_cache(exitem_with_cache* f, exitem_with_cache* l, stype cap);

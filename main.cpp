@@ -19,6 +19,7 @@
 #include "bnb_with_cache.h"
 #include "minknap.h"
 #include "expknap.h"
+#include "expknap_with_cache.h"
 
 void run_one_problem(Problem problem, std::string method) {
 
@@ -43,6 +44,7 @@ void run_one_problem(Problem problem, std::string method) {
 	std::chrono::steady_clock::time_point start_time, end_time;
 	int solution = 0;
 
+
 	exitem* f, * l;
 	exitem* a;
 	/* allocate space for test example */
@@ -56,7 +58,20 @@ void run_one_problem(Problem problem, std::string method) {
 	}
 
 
-	for (int i = 0; i < 1; i++) {
+	exitem_with_cache* f_with_cache, * l_with_cache;
+	exitem_with_cache* a_with_cache;
+	/* allocate space for test example */
+	a_with_cache = (exitem_with_cache*)palloc_with_cache(number_items, sizeof(exitem_with_cache));
+	f_with_cache = a_with_cache; l_with_cache = &a_with_cache[number_items - 1];
+	int k = 1;
+	for (exitem_with_cache* j = f_with_cache; j <= l_with_cache; j++) {
+		j->p = values[k];
+		j->w = weights[k];
+		k++;
+	}
+
+
+	for (int i = 0; i < 10; i++) {
 		start_time = std::chrono::steady_clock::now();
 		if (method == "Classical_DP") {
 			solution = solver_dp.solve();
@@ -82,7 +97,13 @@ void run_one_problem(Problem problem, std::string method) {
 		}
 		if (method == "Expknap") {
 			solution = expknap(f, l, W);
+			sumdata();
 		}
+		if (method == "Expknap_with_cache") {
+			solution = expknap_with_cache(f_with_cache, l_with_cache, W);
+			sumdata_with_cache();
+		}
+
 
 
 		end_time = std::chrono::steady_clock::now();
@@ -109,14 +130,15 @@ int main(int argc, char** argv) {
 	problem.read_data_from_file(filepath);
 	
 	std::vector <std::string> methods;
-	methods.push_back("Classical_DP");
+	//methods.push_back("Classical_DP");
 	//methods.push_back("DP_with_left_bounds");
 	//methods.push_back("DP_with_cache");
-	methods.push_back("DP_with_lower_bounds_and_cache"); // not correct 
+	//methods.push_back("DP_with_lower_bounds_and_cache"); // not correct 
     //methods.push_back("Classical_BnB");
 	methods.push_back("BnB_with_cache"); // not correct 
 	methods.push_back("Minknap");
-	//methods.push_back("Expknap");
+	methods.push_back("Expknap");
+	methods.push_back("Expknap_with_cache");
 
 	for (int i = 0; i < methods.size(); i++) {
 		run_one_problem(problem, methods[i]);

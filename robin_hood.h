@@ -277,7 +277,7 @@ namespace robin_hood {
 				static_assert(Begin >= 0, "unexpected argument (Begin<0)");
 				using TResult = integer_sequence<TValue>;
 			};
-
+			
 			template <class T, T Begin, T End>
 			struct IntSeqImpl<T, Begin, End, true> {
 				using TValue = T;

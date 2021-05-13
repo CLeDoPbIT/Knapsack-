@@ -20,8 +20,8 @@ struct Node
 	//		 node (including this node)
 	// bound ---> Upper bound of maximum profit in subtree
 	//		 of this node/
-	int profit, bound;
-	int* level;
+	int level, profit, bound;
+	float weight;
 };
 
 
