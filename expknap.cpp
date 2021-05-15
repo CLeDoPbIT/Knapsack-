@@ -25,9 +25,10 @@ long sorts;
 long iterations;
 
 
-void sumdata()
+long  sumdata()
 {
-	std::cout << iterations << std::endl;
+	return iterations;
+	//std::cout << iterations << std::endl;
 	//static long n;
 	//static long r;
 	//static long t;
@@ -458,7 +459,7 @@ stype heuristic(item_exp* f, item_exp* l)
 				expknap
    ====================================================================== */
 
-stype expknap(exitem* f, exitem* l, stype cap)
+std::pair <long, long> expknap(exitem* f, exitem* l, stype cap)
 {
 	register item_exp* j;
 	register exitem* i;
@@ -488,10 +489,10 @@ stype expknap(exitem* f, exitem* l, stype cap)
 	z = heuristic(fitem, litem);
 	heur = z + psb;
 
-	//int* cache = 0;
-	//cache = new int[2*c];
-	//for (int i = 0; i < 2*c; i++)
-	//	cache[i] = -1;
+	int* cache = 0;
+	cache = new int[2 * c];
+	//std::fill_n(cache, 2 * c, -1);
+	memset(cache, -1, 2 * c);
 
 
 	elebranch(0, wsb - c, br - 1, br);
@@ -504,7 +505,7 @@ stype expknap(exitem* f, exitem* l, stype cap)
 	pfree__(ehead);
 	pfree__(fitem);
 	sorts = lsort - fsort + 1;
-	return z + psb;
+	return std::make_pair(z + psb, iterations);
 }
 
 

@@ -101,7 +101,7 @@ void clear2DArray(int** array, unsigned height) {
 
 }
 
-int DP_With_Lower_Bounds_and_Cache_Solver::solve() {
+std::pair <long, long> DP_With_Lower_Bounds_and_Cache_Solver::solve() {
 
 	std::vector<Subject> subjects;
 	int* keys = 0;
@@ -166,6 +166,6 @@ int DP_With_Lower_Bounds_and_Cache_Solver::solve() {
 			tmp_max = table[number_items][i];
 		}
 	}
-	return tmp_max;
+	return std::make_pair(tmp_max, counter);
 
 }

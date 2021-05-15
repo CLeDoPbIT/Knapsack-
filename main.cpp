@@ -42,8 +42,6 @@ void run_one_problem(Problem problem, std::string method) {
 	x = new int[number_items];
 	std::vector <float> run_time;
 	std::chrono::steady_clock::time_point start_time, end_time;
-	int solution = 0;
-
 
 	exitem* f, * l;
 	exitem* a;
@@ -70,8 +68,9 @@ void run_one_problem(Problem problem, std::string method) {
 		k++;
 	}
 
+	std::pair <long, long> solution;
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 1; i++) {
 		start_time = std::chrono::steady_clock::now();
 		if (method == "Classical_DP") {
 			solution = solver_dp.solve();
@@ -92,50 +91,53 @@ void run_one_problem(Problem problem, std::string method) {
 			solution = solver_bnb_with_cache.solve();
 		}
 		if (method == "Minknap") {
-				
-			  solution = minknap(number_items, p, w, x, W);
+			solution = minknap(number_items, p, w, x, W);
 		}
 		if (method == "Expknap") {
 			solution = expknap(f, l, W);
-			sumdata();
 		}
 		if (method == "Expknap_with_cache") {
 			solution = expknap_with_cache(f_with_cache, l_with_cache, W);
-			sumdata_with_cache();
 		}
-
-
 
 		end_time = std::chrono::steady_clock::now();
 		double dur_seconds = std::chrono::duration<float>(end_time - start_time).count();
 		run_time.push_back(dur_seconds);
 	}
 	float average = std::accumulate(run_time.begin(), run_time.end(), 0.0) / run_time.size();
-	std::cout << method << " mean run time " << average << ", Solution " << solution << std::endl;
+	std::cout << method << " mean run time " << average << ", Solution " << solution.first << " Iterations " << solution.second  << std::endl;
 }
 
 
 int main(int argc, char** argv) {
 	std::string text; 
-
-	std::vector<std::string>path_to_folders = { "data/large_scale",
-			"data/large_scale-optimum",
-			"data/low-dimensional",
-			"data/low-dimensional-optimum" };
-
-	std::string filepath = path_to_folders[0] + "/knapPI_3_1000_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
-
-
 	Problem problem;
-	problem.read_data_from_file(filepath);
+	boolean generate_task = TRUE;
+	if (generate_task) {
+		problem.generate_problem(1000,1000,100,200,"no_small_weights"); 
+		// uncorellated weakly_correlated strongly_correlated subset_sum inverse_strongly_correlated almost_strongly_correlated
+		// similar_uncorrelated_weights even_odd_strongly_correlated even_odd_subset_sum no_small_weights
+	}
+	else {
+		std::vector<std::string>path_to_folders = { "data/large_scale",
+				"data/large_scale-optimum",
+				"data/low-dimensional",
+				"data/low-dimensional-optimum" };
+
+		std::string filepath = path_to_folders[2] + "/f4_l-d_kp_4_11";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
+
+
+		problem.read_data_from_file(filepath);
+	}
+	
 	
 	std::vector <std::string> methods;
 	//methods.push_back("Classical_DP");
 	//methods.push_back("DP_with_left_bounds");
 	//methods.push_back("DP_with_cache");
 	//methods.push_back("DP_with_lower_bounds_and_cache"); // not correct 
-    //methods.push_back("Classical_BnB");
-	methods.push_back("BnB_with_cache"); // not correct 
+ //   methods.push_back("Classical_BnB");
+	//methods.push_back("BnB_with_cache"); // not correct 
 	methods.push_back("Minknap");
 	methods.push_back("Expknap");
 	methods.push_back("Expknap_with_cache");

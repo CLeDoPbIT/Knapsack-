@@ -152,7 +152,7 @@ typedef struct istk_with_cache {
 											   sumdata
 			   ====================================================================== */
 
-void sumdata_with_cache();
+long sumdata_with_cache();
 
 
 /* ======================================================================
@@ -268,4 +268,4 @@ stype heuristic_with_cache(item_exp_with_cache* f, item_exp_with_cache* l);
 				expknap
    ====================================================================== */
 
-stype expknap_with_cache(exitem_with_cache* f, exitem_with_cache* l, stype cap);
+std::pair <long, long> expknap_with_cache(exitem_with_cache* f, exitem_with_cache* l, stype cap);

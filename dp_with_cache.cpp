@@ -91,7 +91,7 @@ void clead2DArray(int** array, unsigned height) {
 
 }
 
-int DP_With_Cache_Solver::solve() {
+std::pair <long, long> DP_With_Cache_Solver::solve() {
 	int** table = create2DArray(number_items + 1, W + 1);
 	std::vector <float> time_count;
 	int* keys = 0;
@@ -127,6 +127,6 @@ int DP_With_Cache_Solver::solve() {
 			tmp_max = table[number_items][i];
 		}
 	}
-	return tmp_max;
+	return std::make_pair(tmp_max, counter);
 
 }

@@ -195,6 +195,9 @@ typedef struct { /* all problem information */
 } allinfo;
 
 
+long  sumdata();
+
+
 /* ======================================================================
 				  errorx
    ====================================================================== */
@@ -311,7 +314,7 @@ void findbreak(allinfo* a);
 				minknap
    ====================================================================== */
 
-stype minknap(int n, int* p, int* w, int* x, int c);
+std::pair<long, long> minknap(int n, int* p, int* w, int* x, int c);
 
 /* ======================================================================
 				end

@@ -23,6 +23,6 @@ public:
 	int** create2DArray(unsigned height, unsigned width);
 	void clear2DArray(int** array, unsigned height);
 	int** get_table();
-	int solve();
+	std::pair <long, long> solve();
 };
 

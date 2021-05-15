@@ -35,6 +35,6 @@ public:
 	std::vector <int> weights;
 	BnB_With_Cache_Solver(std::vector <int> tmp_values, std::vector <int> tmp_weights, int tmp_W, int tmp_number_items);
 	Node** create2DArray(unsigned height, unsigned width);
-	int solve();
+	std::pair <long, long> solve();
 };
 

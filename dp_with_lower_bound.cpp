@@ -24,7 +24,7 @@ bool compare_subjects_(Subject a, Subject b) {
 }
 
 
-int DP_with_lower_bound_Solver::solve() {
+std::pair <long, long> DP_with_lower_bound_Solver::solve() {
 	table = create2DArray(number_items + 1, W + 1);
 
 	int counter = 0;
@@ -73,7 +73,7 @@ int DP_with_lower_bound_Solver::solve() {
 	}
 	//std::cout << counter << std::endl;
 
-	return table[number_items][W];
+	return std::make_pair(table[number_items][W], counter);
 }
 
 DP_with_lower_bound_Solver::DP_with_lower_bound_Solver(std::vector<int> tmp_values, std::vector<int> tmp_weights, int tmp_W, int tmp_number_items)

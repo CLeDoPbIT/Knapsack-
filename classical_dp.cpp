@@ -36,7 +36,7 @@ int** Classic_DP_Solver::create2DArray(unsigned height, unsigned width)
 	return array2D;
 };
 int** Classic_DP_Solver::get_table() { return table; }
-int Classic_DP_Solver::solve() {
+std::pair <long, long> Classic_DP_Solver::solve() {
 	table = create2DArray(number_items + 1, W + 1);
 	int counter = 0;
 	//std::chrono::steady_clock::time_point start_time, end_time;
@@ -72,5 +72,5 @@ int Classic_DP_Solver::solve() {
 
 	//std::cout << counter << std::endl;
 
-	return table[number_items][W];
+	return std::make_pair(table[number_items][W], counter);
 }

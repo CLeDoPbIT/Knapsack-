@@ -93,7 +93,7 @@ int greed_solve(int W, Item* items, int number_items) {
 }
 
 
-int Classical_BnB_Solver::solve() {
+std::pair <long, long> Classical_BnB_Solver::solve() {
 	Item* items = 0;
 	items = new Item[number_items];
 	for (int i = 1; i <= number_items; i++) {
@@ -163,8 +163,8 @@ int Classical_BnB_Solver::solve() {
 			queue.push(v);
 
 	}
-	std::cout << counter << std::endl;
+	//std::cout << counter << std::endl;
 
-	return maxProfit;
+	return std::make_pair(maxProfit, counter);
 
 }

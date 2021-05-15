@@ -151,7 +151,7 @@ typedef struct istk {
 									  sumdata
 	  ====================================================================== */
 
-void sumdata();
+long sumdata();
 
 
 /* ======================================================================
@@ -267,4 +267,4 @@ stype heuristic(item_exp* f, item_exp* l);
 				expknap
    ====================================================================== */
 
-stype expknap(exitem* f, exitem* l, stype cap);
+std::pair <long, long> expknap(exitem* f, exitem* l, stype cap);

@@ -25,9 +25,10 @@ long sorts_wc;
 long iterations_wc;
 
 
-void sumdata_with_cache()
+long sumdata_with_cache()
 {
-	std::cout << iterations_wc << std::endl;
+	//std::cout << iterations_wc << std::endl;
+	return iterations_wc;
 	//static long n;
 	//static long r;
 	//static long t;
@@ -454,7 +455,14 @@ short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, i
 		for (;;) {
 			if (s < fsort) { if (!sorti_with_cache(&stack1)) break; }
 			if (DET(ps - (z_wc + 1), ws, s->p, s->w) < 0) break;
-			returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache);
+			if (cache[c_wc + ws - s->w] != -1) {
+				cache[c_wc + ws - s->w] = ps - s->p;
+				returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache);
+			}
+			else {
+				cache[c_wc + ws - s->w] = ws - s->w;
+				returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache);
+			}
 			if (returned) {
 				improved = TRUE; pushe_with_cache(s);
 			}
@@ -518,7 +526,7 @@ stype heuristic_with_cache(item_exp_with_cache* f, item_exp_with_cache* l)
 				expknap
    ====================================================================== */
 
-stype expknap_with_cache(exitem_with_cache* f, exitem_with_cache* l, stype cap)
+std::pair <long, long> expknap_with_cache(exitem_with_cache* f, exitem_with_cache* l, stype cap)
 {
 	register item_exp_with_cache* j;
 	register exitem_with_cache* i;
@@ -553,7 +561,11 @@ stype expknap_with_cache(exitem_with_cache* f, exitem_with_cache* l, stype cap)
 	
 	int* cache = 0;
 	cache = new int[2*c_wc];
-	std::fill_n(cache, 2 * c_wc, -1);
+	//std::fill_n(cache, 2 * c_wc, -1);
+
+	//char str[] = "almost every programmer should know memset!";
+	memset(cache, -1, 2 * c_wc);
+
 
 	//for (int i = 0; i < 2*c_wc; i++)
 	//	cache[i] = -1;
@@ -568,7 +580,7 @@ stype expknap_with_cache(exitem_with_cache* f, exitem_with_cache* l, stype cap)
 	pfree__with_cache(ehead_wc);
 	pfree__with_cache(fitem);
 	sorts_wc = lsort - fsort + 1;
-	return z_wc + psb_wc;
+	return std::make_pair(z_wc + psb_wc, iterations_wc);
 }
 
 

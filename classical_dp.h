@@ -22,5 +22,5 @@ public:
 	Classic_DP_Solver(std::vector <int> tmp_values, std::vector <int> tmp_weights, int tmp_W, int tmp_number_items);
 	int** create2DArray(unsigned height, unsigned width);
 	int** get_table();
-	int solve();
+	std::pair <long, long> solve();
 };

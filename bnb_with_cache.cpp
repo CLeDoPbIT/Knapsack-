@@ -363,7 +363,7 @@ Node** BnB_With_Cache_Solver::create2DArray(unsigned height, unsigned width)
 //}
 
 
-int BnB_With_Cache_Solver::solve() {
+std::pair <long, long> BnB_With_Cache_Solver::solve() {
 	Item* items = 0;
 	items = new Item[number_items];
 	for (int i = 1; i <= number_items; i++) {
@@ -465,9 +465,9 @@ int BnB_With_Cache_Solver::solve() {
 			
 
 	}
-	std::cout << counter << std::endl;
+	//std::cout << counter << std::endl;
 
-	return maxProfit;
+	return std::make_pair(maxProfit, counter);
 
 
 

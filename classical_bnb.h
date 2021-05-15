@@ -18,6 +18,6 @@ public:
 	std::vector <int> values;
 	std::vector <int> weights;
 	Classical_BnB_Solver(std::vector <int> tmp_values, std::vector <int> tmp_weights, int tmp_W, int tmp_number_items);
-	int solve();
+	std::pair <long, long> solve();
 };
 
