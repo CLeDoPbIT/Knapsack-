@@ -7,6 +7,7 @@
 #include <math.h>
 #include <fstream>
 #include <vector>
+#include <ctime>
 #include <chrono>
 #include <locale.h>
 #include <unordered_map>
@@ -104,8 +105,15 @@ std::pair <long, long> DP_With_Cache_Solver::solve() {
 	float dur_seconds = 0;
 	int size = 0;
 	std::chrono::steady_clock::time_point start_time, end_time;
+	std::time_t startTime = time(0);
+	int tmp_max = -1;
+
 	for (int n = 1; n <= number_items; n++) {		
 		for (int w = W; w >= 0; w--) {
+			if (time(0) < startTime + 15) {
+				goto skip;
+			}
+
 			if ((keys[w] == 1)|| ((keys[w - weights[n]]==1)&&(w>= weights[n]))) {
 				counter++;
 				if (weights[n] > w) {
@@ -121,12 +129,17 @@ std::pair <long, long> DP_With_Cache_Solver::solve() {
 
 	//std::cout << counter << std::endl;
 
-	int tmp_max = -1;
 	for (int i = 1; i <= W + 1; i++) {
 		if (tmp_max < table[number_items][i]) {
 			tmp_max = table[number_items][i];
 		}
 	}
-	return std::make_pair(tmp_max, counter);
-
+skip:
+	if (time(0) < startTime + 15) {
+		return std::make_pair(0, 0);
+	}
+	else {
+		return std::make_pair(tmp_max, counter);
+	}
 }
+

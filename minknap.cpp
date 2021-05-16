@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdarg.h>
+#include <ctime>
 using namespace std;
 
 /* ======================================================================
@@ -579,7 +580,8 @@ void findbreak(allinfo* a)
 				minknap
    ====================================================================== */
 
-stype minknap(int n, int* p, int* w, int* x, int c)
+
+std::pair<long,long> minknap(int n, int* p, int* w, int* x, int c)
 {
 	allinfo a;
 	item* tab;
@@ -608,9 +610,9 @@ stype minknap(int n, int* p, int* w, int* x, int c)
 
 	a.ub = a.dantzig;
 	a.firsttime = TRUE;
+	std::time_t startTime = time(0);
 
 	for (;;) {
-		a.iterates++;
 
 		a.s = a.b - 1;
 		a.t = a.b;
@@ -619,6 +621,11 @@ stype minknap(int n, int* p, int* w, int* x, int c)
 		reduceset(&a);
 
 		while ((a.d.size > 0) && (a.z < a.ub)) {
+			a.iterates++;
+			if (time(0) > startTime + 15) {
+				goto skip;
+			}
+
 			if (a.t <= a.lsort) {
 				if (haschance(&a, a.t, RIGHT)) multiply(&a, a.t, RIGHT);
 				(a.t)++;
@@ -635,9 +642,19 @@ stype minknap(int n, int* p, int* w, int* x, int c)
 		definesolution(&a);
 		if (a.welldef) break;
 	}
+skip:
 	pfree_(tab);
 	pfree_(inttab);
-	return a.zstar;
+
+	if (time(0) < startTime + 15) {
+		return std::make_pair(a.zstar, a.iterates);
+
+	}
+	else {
+		return std::make_pair(0, 0);
+
+	}
+
 }
 
 

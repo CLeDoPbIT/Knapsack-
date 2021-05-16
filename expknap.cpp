@@ -372,12 +372,17 @@ boolean sorti(istack** stack)
    ====================================================================== */
 
 
-short elebranch(itype_exp ps, itype_exp ws, item_exp* s, item_exp* t)
+short elebranch(itype_exp ps, itype_exp ws, item_exp* s, item_exp* t, std::time_t startTime)
 {
 	short improved;
 	//std::cout << iterations << " " << z << " "<<  z + psb << " " << t->w << " "<< s->w <<std::endl;
 	iterations++;
 	improved = FALSE;
+
+	if (time(0) >  startTime + 15) {
+		goto skip;
+	}
+
 	if (ws <= 0) {
 		if (ps > z) {
 			improved = TRUE;
@@ -387,7 +392,7 @@ short elebranch(itype_exp ps, itype_exp ws, item_exp* s, item_exp* t)
 		for (;;) {
 			if (t > lsort) { if (!sorti(&stack2)) break; }
 			if (DET(ps - (z + 1), ws, t->p, t->w) < 0) break;
-			if (elebranch(ps + t->p, ws + t->w, s, t + 1)) {
+			if (elebranch(ps + t->p, ws + t->w, s, t + 1, startTime)) {
 				improved = TRUE; pushe(t);
 			}
 			t++;
@@ -397,12 +402,13 @@ short elebranch(itype_exp ps, itype_exp ws, item_exp* s, item_exp* t)
 		for (;;) {
 			if (s < fsort) { if (!sorti(&stack1)) break; }
 			if (DET(ps - (z + 1), ws, s->p, s->w) < 0) break;
-			if (elebranch(ps - s->p, ws - s->w, s - 1, t)) {
+			if (elebranch(ps - s->p, ws - s->w, s - 1, t, startTime)) {
 				improved = TRUE; pushe(s);
 			}
 			s--;
 		}
 	}
+skip:
 	return improved;
 }
 
@@ -494,8 +500,9 @@ std::pair <long, long> expknap(exitem* f, exitem* l, stype cap)
 	//std::fill_n(cache, 2 * c, -1);
 	memset(cache, -1, 2 * c);
 
+	std::time_t startTime = time(0);
 
-	elebranch(0, wsb - c, br - 1, br);
+	elebranch(0, wsb - c, br - 1, br, startTime);
 
 	/* define solution */
 	definesolution();
@@ -505,7 +512,13 @@ std::pair <long, long> expknap(exitem* f, exitem* l, stype cap)
 	pfree__(ehead);
 	pfree__(fitem);
 	sorts = lsort - fsort + 1;
-	return std::make_pair(z + psb, iterations);
+
+	if (time(0) > startTime + 15) {
+		return std::make_pair(0, 0);
+	}
+	else {
+		return std::make_pair(z + psb, iterations);
+	}
 }
 
 

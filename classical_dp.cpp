@@ -9,6 +9,7 @@
 #include <vector>
 #include <chrono>
 #include <locale.h>
+#include <ctime>
 #include "classical_dp.h"
 
 Classic_DP_Solver::Classic_DP_Solver(std::vector<int> tmp_values, std::vector<int> tmp_weights, int tmp_W, int tmp_number_items)
@@ -36,7 +37,18 @@ int** Classic_DP_Solver::create2DArray(unsigned height, unsigned width)
 	return array2D;
 };
 int** Classic_DP_Solver::get_table() { return table; }
+
+//std::pair <long, long> Classic_DP_Solver::start_with_tamer() {
+//	Timer < Classic_DP_Solver > timer;
+//	timer.setInterval(1, 1000);
+//
+//}
+
+
 std::pair <long, long> Classic_DP_Solver::solve() {
+
+
+
 	table = create2DArray(number_items + 1, W + 1);
 	int counter = 0;
 	//std::chrono::steady_clock::time_point start_time, end_time;
@@ -44,9 +56,13 @@ std::pair <long, long> Classic_DP_Solver::solve() {
 	//double dur_seconds = 0;
 	//std::vector <double> time_counter;
 	//start_time = std::chrono::steady_clock::now();
+	std::time_t startTime = time(0);
 
 	for (int n = 1; n <= number_items; n++) {
 		for (int w = 1; w <= W; w++) {
+			if (time(0) < startTime + 15) {
+				goto skip;
+			}
 			//start_time = std::chrono::steady_clock::now();
 			counter++;
 			if (weights[n] > w) {
@@ -71,6 +87,11 @@ std::pair <long, long> Classic_DP_Solver::solve() {
 	//std::cout << dur_seconds << " sum time" << std::endl;
 
 	//std::cout << counter << std::endl;
-
-	return std::make_pair(table[number_items][W], counter);
+skip:
+	if (time(0) < startTime + 15){
+		return std::make_pair(0,0);
+	}
+	else {
+		return std::make_pair(table[number_items][W], counter);
+	}
 }

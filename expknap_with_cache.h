@@ -65,6 +65,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <ctime>
 #include "robin_hood.h"
 
 	   /* ======================================================================
@@ -254,7 +255,7 @@ boolean sorti_with_cache(istack_with_cache** stack);
 				elebranch
    ====================================================================== */
 
-short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, item_exp_with_cache* t, robin_hood::unordered_flat_map<int, int> cache);
+short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, item_exp_with_cache* t, robin_hood::unordered_flat_map<int, int> cache, std::time_t startTime);
 
 
 /* ======================================================================

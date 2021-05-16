@@ -7,6 +7,7 @@
 #include <cmath>
 #include <math.h>
 #include <fstream>
+#include <ctime>
 #include <vector>
 #include <chrono>
 #include <locale.h>
@@ -42,6 +43,7 @@ std::pair <long, long> DP_with_lower_bound_Solver::solve() {
 	int* left_bounds = 0;
 	left_bounds = new int [number_items+1];
 	left_bounds[number_items] = W;
+	std::time_t startTime = time(0);
 
 	int j = number_items;
 	for (int i = 1; i <= number_items; i++) {
@@ -59,6 +61,9 @@ std::pair <long, long> DP_with_lower_bound_Solver::solve() {
 
 	for (int n = 1; n <= number_items; n++) {
 		for (int w = left_bounds[n]; w <= W; w++) {
+			if (time(0) < startTime + 15) {
+				goto skip;
+			}
 			counter++;
 			index = number_items - n + 1;
 			if (subjects[index].weight > w) {
@@ -72,8 +77,13 @@ std::pair <long, long> DP_with_lower_bound_Solver::solve() {
 		//std::cout << std::endl;
 	}
 	//std::cout << counter << std::endl;
-
-	return std::make_pair(table[number_items][W], counter);
+skip:
+	if (time(0) < startTime + 15) {
+		return std::make_pair(0, 0);
+	}
+	else {
+		return std::make_pair(table[number_items][W], counter);
+	}
 }
 
 DP_with_lower_bound_Solver::DP_with_lower_bound_Solver(std::vector<int> tmp_values, std::vector<int> tmp_weights, int tmp_W, int tmp_number_items)

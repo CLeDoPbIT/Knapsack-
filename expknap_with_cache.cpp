@@ -418,13 +418,18 @@ boolean sorti_with_cache(istack_with_cache** stack)
 //	return improved;
 //}
 
-short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, item_exp_with_cache* t, int* cache)
+short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, item_exp_with_cache* t, int* cache, std::time_t startTime)
 {
 	short improved;
 
 	iterations_wc++;
 	improved = FALSE;
+
 	boolean returned = FALSE;
+	if (time(0) > startTime + 15) {
+		goto skip;
+	}
+
 
 	if (ws <= 0) {
 		if (ps > z_wc) {
@@ -438,12 +443,12 @@ short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, i
 			if (cache[c_wc + ws + t->w] != -1){
 				if (cache[c_wc + ws + t->w] < ps + t->p) {
 					cache[c_wc + ws + t->w] = ps + t->p;
-					returned = elebranch_with_cache(ps + t->p, ws + t->w, s, t + 1, cache);
+					returned = elebranch_with_cache(ps + t->p, ws + t->w, s, t + 1, cache, startTime);
 				}
 			}
 			else {
 				cache[c_wc + ws + t->w] = ps + t->p;
-				returned = elebranch_with_cache(ps + t->p, ws + t->w, s, t + 1, cache);
+				returned = elebranch_with_cache(ps + t->p, ws + t->w, s, t + 1, cache, startTime);
 			}
 			if (returned) {
 				improved = TRUE; pushe_with_cache(t);
@@ -457,11 +462,11 @@ short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, i
 			if (DET(ps - (z_wc + 1), ws, s->p, s->w) < 0) break;
 			if (cache[c_wc + ws - s->w] != -1) {
 				cache[c_wc + ws - s->w] = ps - s->p;
-				returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache);
+				returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache, startTime);
 			}
 			else {
 				cache[c_wc + ws - s->w] = ws - s->w;
-				returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache);
+				returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache, startTime);
 			}
 			if (returned) {
 				improved = TRUE; pushe_with_cache(s);
@@ -469,6 +474,7 @@ short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, i
 			s--;
 		}
 	}
+skip:
 	return improved;
 }
 
@@ -569,8 +575,9 @@ std::pair <long, long> expknap_with_cache(exitem_with_cache* f, exitem_with_cach
 
 	//for (int i = 0; i < 2*c_wc; i++)
 	//	cache[i] = -1;
+	std::time_t startTime = time(0);
 
-	elebranch_with_cache(0, wsb_wc - c_wc, br - 1, br, cache);
+	elebranch_with_cache(0, wsb_wc - c_wc, br - 1, br, cache, startTime);
 
 	/* define solution */
 	definesolution_with_cache();
@@ -580,7 +587,13 @@ std::pair <long, long> expknap_with_cache(exitem_with_cache* f, exitem_with_cach
 	pfree__with_cache(ehead_wc);
 	pfree__with_cache(fitem);
 	sorts_wc = lsort - fsort + 1;
-	return std::make_pair(z_wc + psb_wc, iterations_wc);
+	if (time(0) > startTime + 15) {
+		return std::make_pair(0, 0);
+	}
+	else {
+		return std::make_pair(z_wc + psb_wc, iterations_wc);
+	}
+
 }
 
 

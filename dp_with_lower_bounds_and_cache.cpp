@@ -8,6 +8,7 @@
 #include <vector>
 #include <chrono>
 #include <locale.h>
+#include <ctime>
 #include <unordered_map>
 #include <map>
 #include <limits>
@@ -93,10 +94,10 @@ int** DP_With_Lower_Bounds_and_Cache_Solver::create2DArray(unsigned height, unsi
 	return array2D;
 };
 
-void clear2DArray(int** array, unsigned height) {
-	for (int h = 0; h > height; h++)
+void DP_With_Lower_Bounds_and_Cache_Solver::clear2DArray(int** array, unsigned height) {
+	for (int h = 0; h < height; h++)
 	{
-		delete array[h];
+		delete(array[h]);
 	}
 
 }
@@ -142,30 +143,55 @@ std::pair <long, long> DP_With_Lower_Bounds_and_Cache_Solver::solve() {
 	int counter = 0;
 	float dur_seconds = 0;
 	int size = 0;
-	std::chrono::steady_clock::time_point start_time, end_time;
+	std::time_t startTime = time(0);
+	int tmp_max = -1;
+
 	for (int n = 1; n <= number_items; n++) {
 		for (int w = W; w >= left_bounds[n]; w--) {
-			if ((keys[w] == 1) || ((keys[w - subjects[n].weight] == 1) && (w >= subjects[n].weight))) {
-				counter++;
-				if (subjects[n].weight > w) {
-					table[n][w] = table[n - 1][w];
+
+			if (time(0) > startTime + 15) {
+				goto skip;
+			}
+			if (w >= subjects[n].weight) {
+				if (keys[w - subjects[n].weight] == 1) {
+					counter++;
+					if (subjects[n].weight > w) {
+						table[n][w] = table[n - 1][w];
+					}
+					else {
+						table[n][w] = std::max(table[n - 1][w], table[n - 1][w - subjects[n].weight] + subjects[n].value);
+					}
+					keys[w] = 1;
 				}
-				else {
-					table[n][w] = std::max(table[n - 1][w], table[n - 1][w - subjects[n].weight] + subjects[n].value);
+			}
+			else {
+				if (keys[w] == 1) {
+					counter++;
+					if (subjects[n].weight > w) {
+						table[n][w] = table[n - 1][w];
+					}
+					else {
+						table[n][w] = std::max(table[n - 1][w], table[n - 1][w - subjects[n].weight] + subjects[n].value);
+					}
+					keys[w] = 1;
 				}
-				keys[w] = 1;
 			}
 		}
 	}
 
 	//std::cout << counter << std::endl;
 
-	int tmp_max = -1;
 	for (int i = 1; i <= W + 1; i++) {
 		if (tmp_max < table[number_items][i]) {
 			tmp_max = table[number_items][i];
 		}
 	}
-	return std::make_pair(tmp_max, counter);
-
+skip:
+	clear2DArray(table, number_items + 1);
+	if (time(0) > startTime + 15) {
+		return std::make_pair(0, 0);
+	}
+	else {
+		return std::make_pair(tmp_max, counter);
+	}
 }

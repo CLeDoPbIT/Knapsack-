@@ -7,6 +7,7 @@
 #include <math.h>
 #include <fstream>
 #include <vector>
+#include <ctime>
 #include <chrono>
 #include <stack>
 #include <locale.h>
@@ -112,7 +113,9 @@ std::pair <long, long> Classical_BnB_Solver::solve() {
 
 	int maxProfit = greed_solve(W, items, number_items);
 	int counter = 0;
-	while (!queue.empty())
+	std::time_t startTime = time(0);
+
+	while ((!queue.empty()) && (time(0) < startTime + 15))
 	{
 		// Dequeue a node
 		
@@ -164,7 +167,11 @@ std::pair <long, long> Classical_BnB_Solver::solve() {
 
 	}
 	//std::cout << counter << std::endl;
-
-	return std::make_pair(maxProfit, counter);
+	if (time(0) > startTime + 15) {
+		return std::make_pair(0, 0);
+	}
+	else {
+		return std::make_pair(maxProfit, counter);
+	}
 
 }

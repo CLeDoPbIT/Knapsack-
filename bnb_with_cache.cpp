@@ -10,6 +10,7 @@
 #include <chrono>
 #include <stack>
 #include <locale.h>
+#include <ctime>
 #include <unordered_map>
 #include "bnb_with_cache.h"
 #include "robin_hood.h"
@@ -396,7 +397,9 @@ std::pair <long, long> BnB_With_Cache_Solver::solve() {
 	float ub = 0;
 	int weight = 0;
 
-	while (!queue.empty())
+	std::time_t startTime = time(0);
+
+	while ((!queue.empty()) && (time(0) < startTime + 15))
 	{
 		// Dequeue a node
 
@@ -466,8 +469,13 @@ std::pair <long, long> BnB_With_Cache_Solver::solve() {
 
 	}
 	//std::cout << counter << std::endl;
-
-	return std::make_pair(maxProfit, counter);
+	if (time(0) < startTime + 15) {
+		return std::make_pair(maxProfit, counter);
+	}
+	else {
+		return std::make_pair(0, 0);
+	}
+	
 
 
 
