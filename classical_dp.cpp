@@ -36,7 +36,6 @@ int** Classic_DP_Solver::create2DArray(unsigned height, unsigned width)
 
 	return array2D;
 };
-int** Classic_DP_Solver::get_table() { return table; }
 
 //std::pair <long, long> Classic_DP_Solver::start_with_tamer() {
 //	Timer < Classic_DP_Solver > timer;
@@ -45,10 +44,18 @@ int** Classic_DP_Solver::get_table() { return table; }
 //}
 
 
+void Classic_DP_Solver::clear2DArray(int** array, unsigned height) {
+	for (int h = 0; h < height; h++)
+	{
+		delete[] array[h];
+	}
+
+}
+
+
 std::pair <long, long> Classic_DP_Solver::solve() {
 
-
-
+	int** table = 0;
 	table = create2DArray(number_items + 1, W + 1);
 	int counter = 0;
 	//std::chrono::steady_clock::time_point start_time, end_time;
@@ -60,7 +67,7 @@ std::pair <long, long> Classic_DP_Solver::solve() {
 
 	for (int n = 1; n <= number_items; n++) {
 		for (int w = 1; w <= W; w++) {
-			if (time(0) < startTime + 15) {
+			if (time(0) > startTime + 15) {
 				goto skip;
 			}
 			//start_time = std::chrono::steady_clock::now();
@@ -88,10 +95,18 @@ std::pair <long, long> Classic_DP_Solver::solve() {
 
 	//std::cout << counter << std::endl;
 skip:
-	if (time(0) < startTime + 15){
+	int result = table[number_items][W];
+	//clear2DArray(table, number_items + 1);
+	for (int h = 0; h < number_items + 1; h++)
+	{
+		delete[] table[h];
+	}
+	delete[] table;
+
+	if (time(0) > startTime + 15){
 		return std::make_pair(0,0);
 	}
 	else {
-		return std::make_pair(table[number_items][W], counter);
+		return std::make_pair(result, counter);
 	}
 }

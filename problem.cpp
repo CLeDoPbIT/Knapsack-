@@ -12,10 +12,16 @@
 #include <random>
 #include <chrono>
 #include <locale.h>
+#include <fstream>
 #include <cstdlib>
 #include "problem.h"
 #include "polyreg_2.h"
 #include "poly_vector.h"
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <filesystem>
+#include <algorithm>
 
 
 int Problem::get_W() { return W; }
@@ -60,7 +66,7 @@ void Problem::generate_problem(int n, int R, int k, int number_instance, std::st
 		
 		for (int i = 0; i < n; i++) {
 			weights.push_back(distr_w(generator));
-			std::uniform_int_distribution<int>  distr_v(weights[i+1]- delta, weights[i+1] + delta);
+			std::uniform_int_distribution<int>  distr_v(std::max(1, weights[i+1]- delta), weights[i+1] + delta);
 			values.push_back(distr_v(generator));
 		}
 	}
@@ -108,7 +114,7 @@ void Problem::generate_problem(int n, int R, int k, int number_instance, std::st
 
 		for (int i = 0; i < n; i++) {
 			weights.push_back(distr_w(generator));
-			std::uniform_int_distribution<int>  distr_v(weights[i+1] + delta - epsilon, weights[i+1] + delta + epsilon);
+			std::uniform_int_distribution<int>  distr_v(std::max(1, weights[i+1] + delta - epsilon), weights[i+1] + delta + epsilon);
 			values.push_back(distr_v(generator));
 		}
 	}
@@ -151,7 +157,7 @@ void Problem::generate_problem(int n, int R, int k, int number_instance, std::st
 
 		for (int i = 0; i < n; i++) {
 			weights.push_back(distr_w(generator));
-			std::uniform_int_distribution<int>  distr_v(weights[i+1] - delta, weights[i+1] + delta);
+			std::uniform_int_distribution<int>  distr_v(std::max(1, weights[i+1] - delta), weights[i+1] + delta);
 			values.push_back(distr_v(generator));
 		}
 	}
@@ -198,7 +204,7 @@ void Problem::generate_problem(int n, int R, int k, int number_instance, std::st
 
 	for (int i = 0; i < v; i++) {
 		spanner_set_weight[i] = distr_spanner_set_w(generator);
-		std::uniform_int_distribution<int>  distr_spanner_set_v(spanner_set_weight[i] - delta, spanner_set_weight[i] + delta);
+		std::uniform_int_distribution<int>  distr_spanner_set_v(std::max(1, spanner_set_weight[i] - delta), spanner_set_weight[i] + delta);
 		spanner_set_weight[i] = std::ceil(2 * spanner_set_weight[i] / m);
 		spanner_set_value[i] = distr_spanner_set_v(generator);
 		spanner_set_value[i] = std::ceil(2 * spanner_set_value[i] / m);
@@ -345,7 +351,15 @@ void Problem::generate_problem(int n, int R, int k, int number_instance, std::st
 	W = (coef)* std::accumulate(weights.begin(), weights.end(), 0);
 	weights[0] = W;
 
+	std::ofstream myfile;
+	myfile.open("C:/Users/EBurashnikov/source/repos/Knapsack/Knapsack/data_generated/" + type_generator +"/file_"+ std::to_string(k)+".txt");
+	myfile << number_items << " " << W << std::endl;
 
+	for (int i = 1; i <= number_items; i++) {
+		myfile << values[i] << " " << weights[i] << std::endl;
+	}
+	myfile.close();
+		
 }
 void Problem::clear() {
 	values.clear();

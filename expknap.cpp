@@ -507,10 +507,10 @@ std::pair <long, long> expknap(exitem* f, exitem* l, stype cap)
 	/* define solution */
 	definesolution();
 
-	pfree__(ihead1);
-	pfree__(ihead2);
-	pfree__(ehead);
-	pfree__(fitem);
+	//pfree__(ihead1);
+	//pfree__(ihead2);
+	//pfree__(ehead);
+	//pfree__(fitem);
 	sorts = lsort - fsort + 1;
 
 	if (time(0) > startTime + 15) {

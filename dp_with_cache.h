@@ -22,7 +22,7 @@ public:
 	int** table;
 	DP_With_Cache_Solver(std::vector <int> tmp_values, std::vector <int> tmp_weights, int tmp_W, int tmp_number_items);
 	int** create2DArray(unsigned height, unsigned width);
-	void clead2DArray(int** array, unsigned height);
+	void clear2DArray(int** array, unsigned height);
 	int** get_table();
 	std::pair <long, long> solve();
 };

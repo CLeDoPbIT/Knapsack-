@@ -34,7 +34,7 @@
 //}
 
 
-void run_one_problem(Problem problem, std::string method) {
+double* run_one_problem(Problem problem, std::string method) {
 	
 	int W = problem.get_W();
 	int number_items = problem.get_number_items();
@@ -42,9 +42,9 @@ void run_one_problem(Problem problem, std::string method) {
 	std::vector <int> values = problem.get_values();
 
 	
-	//Classic_DP_Solver solver_dp(values, weights, W, number_items); TODO: MEMORY LEAK IN THIS CASES
-	//DP_with_lower_bound_Solver solver_dp_with_left_bounds(values, weights, W, number_items);
-	//DP_With_Cache_Solver solver_dp_with_cache(values, weights, W, number_items);
+	Classic_DP_Solver solver_dp(values, weights, W, number_items);// TODO: MEMORY LEAK IN THIS CASES
+	DP_with_lower_bound_Solver solver_dp_with_left_bounds(values, weights, W, number_items);
+	DP_With_Cache_Solver solver_dp_with_cache(values, weights, W, number_items);
 	DP_With_Lower_Bounds_and_Cache_Solver solver_dp_with_lower_bounds_and_cache(values, weights, W, number_items);
 	Classical_BnB_Solver solver_classical_bnb(values, weights, W, number_items);
 	BnB_With_Cache_Solver solver_bnb_with_cache(values, weights, W, number_items);
@@ -84,52 +84,51 @@ void run_one_problem(Problem problem, std::string method) {
 	std::pair <long, long> solution;
 
 	start_time = std::chrono::steady_clock::now();
+	float average = 0;
 	for (int i = 0; i < 1; i++) {
-		//if (method == "Classical_DP") {
-		//	solution = solver_dp.solve();
-		//}
-		//if (method == "DP_with_left_bounds") {
-		//	solution = solver_dp_with_left_bounds.solve();
-		//}
-		//if (method == "DP_with_cache") {
-		//	solution = solver_dp_with_cache.solve();
-		//}
+		if (method == "Classical_DP") {
+			solution = solver_dp.solve();
+		}
+		if (method == "DP_with_left_bounds") {
+			solution = solver_dp_with_left_bounds.solve();
+		}
+		if (method == "DP_with_cache") {
+			solution = solver_dp_with_cache.solve();
+		}
 		if (method == "DP_with_lower_bounds_and_cache") {
 			solution = solver_dp_with_lower_bounds_and_cache.solve();
-			end_time = std::chrono::steady_clock::now();
 		}
 		if (method == "Classical_BnB") {
 			solution = solver_classical_bnb.solve();
-			end_time = std::chrono::steady_clock::now();
-
 		}
 		if (method == "BnB_with_cache") {
 			solution = solver_bnb_with_cache.solve();
-			end_time = std::chrono::steady_clock::now();
-
 		}
 		if (method == "Minknap") {
 			solution = minknap(number_items, p, w, x, W);
-			end_time = std::chrono::steady_clock::now();
-
 		}
 		if (method == "Expknap") {
 			solution = expknap(f, l, W);
-			end_time = std::chrono::steady_clock::now();
-
 		}
 		if (method == "Expknap_with_cache") {
 			solution = expknap_with_cache(f_with_cache, l_with_cache, W);
-			end_time = std::chrono::steady_clock::now();
 		}
+		end_time = std::chrono::steady_clock::now();
 
 		double dur_seconds = std::chrono::duration<float>(end_time - start_time).count();
 		run_time.push_back(dur_seconds);
 
-		float average = std::accumulate(run_time.begin(), run_time.end(), 0.0) / run_time.size();
+		average = std::accumulate(run_time.begin(), run_time.end(), 0.0) / run_time.size();
 		std::cout << method << " mean1 run time " << average << ", Solution " << solution.first << " Iterations " << solution.second << std::endl;
 
 	}
+	double *result = 0;
+	result = new double[3];
+
+	result[0] = average;
+	result[1] = solution.first;
+	result[2] = solution.second;
+	return result;
 }
 
 
@@ -139,9 +138,9 @@ int main(int argc, char** argv) {
 	boolean generate_task = TRUE;
 
 	std::vector <std::string> methods;
-	//methods.push_back("Classical_DP");
-	//methods.push_back("DP_with_left_bounds");
-	//methods.push_back("DP_with_cache");
+	methods.push_back("Classical_DP");
+	methods.push_back("DP_with_left_bounds");
+	methods.push_back("DP_with_cache");
 	methods.push_back("DP_with_lower_bounds_and_cache"); // not correct 
 	methods.push_back("Classical_BnB");
 	methods.push_back("BnB_with_cache"); // not correct 
@@ -149,22 +148,58 @@ int main(int argc, char** argv) {
 	methods.push_back("Expknap");
 	methods.push_back("Expknap_with_cache");
 
+	double *result = 0;
 	if (generate_task) {
-		int number_tasks = 1;
-		const char* types_benchmarks[20] = { "inverse_strongly_correlated", "uncorellated", "weakly_correlated", "strongly_correlated", "subset_sum",
-			"almost_strongly_correlated", "similar_uncorrelated_weights", "even_odd_strongly_correlated", "even_odd_subset_sum",
-			"no_small_weights", "spanner_uncorrelated", "spanner_weakly_correlated", "spanner_strongly_correlated",
-			"multiple_correlated", "profit_ceiling", "circle", "quadratic_fit", "cubic_fit", "random_ceiling", "profit_ceiling"};
-		for (int type_bech = 0; type_bech < 20; type_bech++) {
-			for (int i = 1; i <= number_tasks; i++) {
-				problem.generate_problem(1000, 1000, i, number_tasks, types_benchmarks[type_bech]);
+		int number_tasks = 10;
+		const char* types_benchmarks[1] = { "even_odd_subset_sum",
+			 };
 
-				for (int i = 0; i < methods.size(); i++) {
-					run_one_problem(problem, methods[i]);
+		// "uncorellated", "strongly_correlated", "subset_sum", "weakly_correlated"
+
+
+		//	// 
+		/*"spanner_weakly_correlated", "inverse_strongly_correlated",
+			"almost_strongly_correlated", "similar_uncorrelated_weights", "even_odd_strongly_correlated", "even_odd_subset_sum",
+			"no_small_weights"*/
+
+		for (int type_bech = 0; type_bech < 1; type_bech++) {
+			for (int i = 1; i <= number_tasks; i++) {
+				problem.generate_problem(10000, 1000, i, number_tasks, types_benchmarks[type_bech]);
+				std::cout << "------------------"<< types_benchmarks[type_bech] << " " << i <<"--------------------------" << std::endl;
+				for (int m = 0; m < methods.size(); m++) {
+					
+					try {
+						result = run_one_problem(problem, methods[m]);
+
+						std::ofstream myfile;
+						std::string str(types_benchmarks[type_bech]);
+						std::string str_m(methods[m]);
+						
+						myfile.open("C:/Users/EBurashnikov/source/repos/Knapsack/Knapsack/data_generated/" + str + "/result_" + str_m +"_" + std::to_string(i) + ".txt");
+						myfile << result[0] << " " << long(result[1]) << " " << long(result[2]);
+						myfile.close();
+					}
+					catch (int a) {
+						result = new double[3];
+						result[0] = 0;
+						result[1] = 0;
+						result[2] = 0;
+					}
+					catch (exception & e)
+					{
+						cout << "Standard exception: " << e.what() << endl;
+					}
+					catch (...) {
+						result = new double[3];
+						result[0] = 0;
+						result[1] = 0;
+						result[2] = 0;
+
+					}
 				}
 				problem.clear();
 			}
-		}
+		}  
 		
 		// uncorellated weakly_correlated strongly_correlated subset_sum inverse_strongly_correlated almost_strongly_correlated
 		// similar_uncorrelated_weights even_odd_strongly_correlated even_odd_subset_sum no_small_weights
@@ -177,7 +212,7 @@ int main(int argc, char** argv) {
 				"data/low-dimensional",
 				"data/low-dimensional-optimum" };
 
-		std::string filepath = path_to_folders[0] + "/knapPI_1_10000_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
+		std::string filepath = path_to_folders[0] + "/knapPI_3_2000_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
 
 
 		problem.read_data_from_file(filepath);

@@ -91,8 +91,11 @@ void error_with_cache(char* str, ...)
 
 void pfree__with_cache(void* p)
 {
-	if (p == NULL) error_with_cache(MASSAGE_WC);
+	//if (p == NULL) error_with_cache(MASSAGE_WC);
+	std::cout << "HERE20" << std::endl;
 	free(p);
+	std::cout << "HERE21" << std::endl;
+
 }
 
 
@@ -238,8 +241,12 @@ void cleare_with_cache()
 
 void pushe_with_cache(item_exp_with_cache* i)
 {
+	//std::cout << "HERE5" << std::endl;
 	*estack_wc = i->x;
+	//std::cout << "HERE6" << std::endl;
 	estack_wc++;
+	//std::cout << "HERE7" << std::endl;
+
 }
 
 
@@ -354,6 +361,8 @@ void partsort_with_cache(item_exp_with_cache* f, item_exp_with_cache* l, stype w
 boolean sorti_with_cache(istack_with_cache** stack)
 /* returns TRUE if expansion succeeded, FALSE if no more intervals */
 {
+	//std::cout << "HERE3" << std::endl;
+
 	register istack_with_cache* pos;
 
 	if ((*stack == ihead1) || (*stack == ihead2)) return FALSE;
@@ -364,6 +373,8 @@ boolean sorti_with_cache(istack_with_cache** stack)
 	if (s.f < fsort) fsort = s.f;
 	if (s.l > lsort) lsort = s.l;
 	return TRUE;
+	//std::cout << "HERE4" << std::endl;
+
 }
 
 
@@ -429,7 +440,7 @@ short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, i
 	if (time(0) > startTime + 15) {
 		goto skip;
 	}
-
+	//std::cout << "HERE1" << std::endl;
 
 	if (ws <= 0) {
 		if (ps > z_wc) {
@@ -437,7 +448,10 @@ short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, i
 			z_wc = ps;
 			cleare_with_cache();
 		}
+
 		for (;;) {
+			//std::cout << "HERE2" << std::endl;
+
 			if (t > lsort) { if (!sorti_with_cache(&stack2)) break; }
 			if (DET(ps - (z_wc + 1), ws, t->p, t->w) < 0) break;
 			if (cache[c_wc + ws + t->w] != -1){
@@ -460,12 +474,20 @@ short elebranch_with_cache(itype_exp ps, itype_exp ws, item_exp_with_cache* s, i
 		for (;;) {
 			if (s < fsort) { if (!sorti_with_cache(&stack1)) break; }
 			if (DET(ps - (z_wc + 1), ws, s->p, s->w) < 0) break;
+			//std::cout << "HERE1" << std::endl;
 			if (cache[c_wc + ws - s->w] != -1) {
-				cache[c_wc + ws - s->w] = ps - s->p;
-				returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache, startTime);
+				//std::cout << "HERE2" << std::endl;
+				if (cache[c_wc + ws - t->w] < ps - s->p) {
+					//std::cout << "HERE4" << std::endl;
+					cache[c_wc + ws - s->w] = ps - s->p;
+					//std::cout << "HERE5" << std::endl;
+					returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache, startTime);
+				}
 			}
 			else {
+				//std::cout << "HERE3" << std::endl;
 				cache[c_wc + ws - s->w] = ws - s->w;
+				//std::cout << "HERE6" << std::endl;
 				returned = elebranch_with_cache(ps - s->p, ws - s->w, s - 1, t, cache, startTime);
 			}
 			if (returned) {
@@ -566,11 +588,15 @@ std::pair <long, long> expknap_with_cache(exitem_with_cache* f, exitem_with_cach
 	heur_wc = z_wc + psb_wc;
 	
 	int* cache = 0;
+	//std::cout << c_wc << std::endl;
 	cache = new int[2*c_wc];
 	//std::fill_n(cache, 2 * c_wc, -1);
 
 	//char str[] = "almost every programmer should know memset!";
-	memset(cache, -1, 2 * c_wc);
+	memset(cache, -1, 4 *2 * c_wc);
+	//for (int n = 0; n < 2 * c_wc; n++) {
+	//	std::cout << cache[n] << std::endl;
+	//}
 
 
 	//for (int i = 0; i < 2*c_wc; i++)
@@ -578,19 +604,24 @@ std::pair <long, long> expknap_with_cache(exitem_with_cache* f, exitem_with_cach
 	std::time_t startTime = time(0);
 
 	elebranch_with_cache(0, wsb_wc - c_wc, br - 1, br, cache, startTime);
-
+	//std::cout << "HERE8" << std::endl;
 	/* define solution */
-	definesolution_with_cache();
+	//std::cout << "HERE9" << std::endl;
 
-	pfree__with_cache(ihead1);
-	pfree__with_cache(ihead2);
-	pfree__with_cache(ehead_wc);
-	pfree__with_cache(fitem);
+	//pfree__with_cache(ihead1);
+	//std::cout << "HERE10" << std::endl;
+	//pfree__with_cache(ihead2);
+	//std::cout << "HERE11" << std::endl;
+	//pfree__with_cache(ehead_wc);
+	//std::cout << "HERE12" << std::endl;
+	//pfree__with_cache(fitem);
+	//std::cout << "HERE13" << std::endl;
 	sorts_wc = lsort - fsort + 1;
 	if (time(0) > startTime + 15) {
 		return std::make_pair(0, 0);
 	}
 	else {
+		definesolution_with_cache();
 		return std::make_pair(z_wc + psb_wc, iterations_wc);
 	}
 

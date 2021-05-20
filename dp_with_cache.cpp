@@ -84,20 +84,23 @@ int** DP_With_Cache_Solver::create2DArray(unsigned height, unsigned width)
 	return array2D;
 };
 
-void clead2DArray(int** array, unsigned height) {
+void DP_With_Cache_Solver::clear2DArray(int** array, unsigned height) {
 	for (int h = 0; h < height; h++)
 	{
-		delete array[h];
+		delete[] array[h];
 	}
 
 }
 
 std::pair <long, long> DP_With_Cache_Solver::solve() {
-	int** table = create2DArray(number_items + 1, W + 1);
+	//int** table = create2DArray(number_items + 1, W + 1);
+	int* table = 0;
+	table = new int[W + 1];
 	std::vector <float> time_count;
 	int* keys = 0;
 	keys = new int[W];
-	table[0][0] = 0;
+	//table[0] = 0;
+	memset(table, 0, 4*(W + 1));
 	keys[0] = 1;
 	int tmp_weight = -1;
 	int tmp_value = -1;
@@ -110,19 +113,33 @@ std::pair <long, long> DP_With_Cache_Solver::solve() {
 
 	for (int n = 1; n <= number_items; n++) {		
 		for (int w = W; w >= 0; w--) {
-			if (time(0) < startTime + 15) {
+			if (time(0) > startTime + 15) {
 				goto skip;
 			}
 
-			if ((keys[w] == 1)|| ((keys[w - weights[n]]==1)&&(w>= weights[n]))) {
-				counter++;
-				if (weights[n] > w) {
-					table[n][w] = table[n - 1][w];
+			if (w >= weights[n]) {
+				if (keys[w - weights[n]] == 1) {
+					counter++;
+					if (weights[n] > w) {
+						table[w] = table[w];
+					}
+					else {
+						table[w] = std::max(table[w], table[w - weights[n]] + values[n]);
+					}
+					keys[w] = 1;
 				}
-				else {
-					table[n][w] = std::max(table[n - 1][w], table[n - 1][w - weights[n]] + values[n]);
+			}
+			else {
+				if (keys[w] == 1) {
+					counter++;
+					if (weights[n] > w) {
+						table[w] = table[w];
+					}
+					else {
+						table[w] = std::max(table[w], table[w - weights[n]] + values[n]);
+					}
+					keys[w] = 1;
 				}
-				keys[w] = 1;
 			}
 		}
 	}
@@ -130,12 +147,15 @@ std::pair <long, long> DP_With_Cache_Solver::solve() {
 	//std::cout << counter << std::endl;
 
 	for (int i = 1; i <= W + 1; i++) {
-		if (tmp_max < table[number_items][i]) {
-			tmp_max = table[number_items][i];
+		if (tmp_max < table[i]) {
+			tmp_max = table[i];
 		}
 	}
 skip:
-	if (time(0) < startTime + 15) {
+
+	//clear2DArray(table, number_items + 1);
+	delete(table);
+	if (time(0) > startTime + 15) {
 		return std::make_pair(0, 0);
 	}
 	else {

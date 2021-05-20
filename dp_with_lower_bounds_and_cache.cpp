@@ -97,7 +97,7 @@ int** DP_With_Lower_Bounds_and_Cache_Solver::create2DArray(unsigned height, unsi
 void DP_With_Lower_Bounds_and_Cache_Solver::clear2DArray(int** array, unsigned height) {
 	for (int h = 0; h < height; h++)
 	{
-		delete(array[h]);
+		delete[] array[h];
 	}
 
 }
@@ -133,9 +133,15 @@ std::pair <long, long> DP_With_Lower_Bounds_and_Cache_Solver::solve() {
 	}
 
 
-	int** table = create2DArray(number_items + 1, W + 1);
+	//int** table = create2DArray(number_items + 1, W + 1);
+	int* table = 0;
+	table = new int[W + 1];
 	std::vector <float> time_count;
-	table[0][0] = 0;
+	//table[0] = 0;
+	memset(table, 0, 4*(W+1));
+	//for (int n = 0; n < W + 1; n++) {
+	//	std::cout << table[n] << std::endl;
+	//}
 	keys[left_bounds[1]] = 1;
 	keys[0] = 1;
 	int tmp_weight = -1;
@@ -149,17 +155,17 @@ std::pair <long, long> DP_With_Lower_Bounds_and_Cache_Solver::solve() {
 	for (int n = 1; n <= number_items; n++) {
 		for (int w = W; w >= left_bounds[n]; w--) {
 
-			if (time(0) > startTime + 15) {
-				goto skip;
-			}
+			//if (time(0) > startTime + 15) {
+			//	goto skip;
+			//}
 			if (w >= subjects[n].weight) {
 				if (keys[w - subjects[n].weight] == 1) {
 					counter++;
 					if (subjects[n].weight > w) {
-						table[n][w] = table[n - 1][w];
+						table[w] = table[w];
 					}
 					else {
-						table[n][w] = std::max(table[n - 1][w], table[n - 1][w - subjects[n].weight] + subjects[n].value);
+						table[w] = std::max(table[w], table[w - subjects[n].weight] + subjects[n].value);
 					}
 					keys[w] = 1;
 				}
@@ -168,10 +174,10 @@ std::pair <long, long> DP_With_Lower_Bounds_and_Cache_Solver::solve() {
 				if (keys[w] == 1) {
 					counter++;
 					if (subjects[n].weight > w) {
-						table[n][w] = table[n - 1][w];
+						table[w] = table[w];
 					}
 					else {
-						table[n][w] = std::max(table[n - 1][w], table[n - 1][w - subjects[n].weight] + subjects[n].value);
+						table[w] = std::max(table[w], table[w - subjects[n].weight] + subjects[n].value);
 					}
 					keys[w] = 1;
 				}
@@ -182,12 +188,13 @@ std::pair <long, long> DP_With_Lower_Bounds_and_Cache_Solver::solve() {
 	//std::cout << counter << std::endl;
 
 	for (int i = 1; i <= W + 1; i++) {
-		if (tmp_max < table[number_items][i]) {
-			tmp_max = table[number_items][i];
+		if (tmp_max < table[i]) {
+			tmp_max = table[i];
 		}
 	}
 skip:
-	clear2DArray(table, number_items + 1);
+	delete(table);
+	//clear2DArray(table, number_items + 1);
 	if (time(0) > startTime + 15) {
 		return std::make_pair(0, 0);
 	}

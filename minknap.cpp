@@ -38,7 +38,7 @@ void* palloc(long size)
 	char* p;
 
 	if (size == 0) size = 1;
-	if (size != (size_t)size) errorx("Alloc too big %ld", size);
+	if (size != (size_t)size) throw - 1;
 	p = new char[size];
 	if (p == NULL) errorx("no memory size %ld", size);
 	return p;
@@ -318,7 +318,7 @@ void multiply(allinfo* a, item* h, int side)
 	if (a->d.size == 0) return;
 	if (side == RIGHT) { p = h->p; w = h->w; }
 	else { p = -h->p; w = -h->w; }
-	if (2 * a->d.size + 2 > MAXSTATES) errorx("no space in multiply");
+	if (2 * a->d.size + 2 > MAXSTATES) throw -1;
 
 	/* keep track on solution vector */
 	a->vno++;
