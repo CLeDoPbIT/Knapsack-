@@ -100,10 +100,12 @@ std::pair <long, long> Classical_BnB_Solver::solve() {
 	for (int i = 1; i <= number_items; i++) {
 		items[i-1].value = values[i];
 		items[i-1].weight = weights[i];
+		//std::cout << items[i - 1].value << " " << items[i - 1].weight << std::endl;
 	}
-
-	std::sort(items, items+ (number_items-1), cmp);
-	
+	std::sort(items, items+(number_items), cmp);
+	//for (int i = 0; i < number_items; i++) {
+	//	std::cout << items[i].value << " " << items[i].weight << std::endl;
+	//}
 	std::stack <Node> queue;
 	Node u, v;
 
@@ -115,7 +117,7 @@ std::pair <long, long> Classical_BnB_Solver::solve() {
 	int counter = 0;
 	std::time_t startTime = time(0);
 
-	while ((!queue.empty()) && (time(0) < startTime + 15))
+	while ((!queue.empty()))// && (time(0) < startTime + 15))
 	{
 		// Dequeue a node
 		

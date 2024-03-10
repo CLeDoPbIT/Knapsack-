@@ -372,7 +372,7 @@ std::pair <long, long> BnB_With_Cache_Solver::solve() {
 		items[i - 1].weight = weights[i];
 	}
 
-	std::sort(items, items + (number_items - 1), cmp_);
+	std::sort(items, items + (number_items), cmp_);
 	robin_hood::unordered_flat_map <int, Node> cache;
 
 	//for (int i = 0; i < number_items; i++) {
@@ -380,7 +380,7 @@ std::pair <long, long> BnB_With_Cache_Solver::solve() {
 	//}
 
 
-	std::stack <Node> queue;
+	std::queue <Node> queue;
 	Node u, v;
 
 	u.level = -1;
@@ -403,7 +403,7 @@ std::pair <long, long> BnB_With_Cache_Solver::solve() {
 	{
 		// Dequeue a node
 
-		u = queue.top();
+		u = queue.front();
 		queue.pop();
 
 		// If it is starting node, assign level 0

@@ -113,9 +113,9 @@ std::pair <long, long> DP_With_Cache_Solver::solve() {
 
 	for (int n = 1; n <= number_items; n++) {		
 		for (int w = W; w >= 0; w--) {
-			if (time(0) > startTime + 15) {
-				goto skip;
-			}
+			//if (time(0) > startTime + 15) {
+			//	goto skip;
+			//}
 
 			if (w >= weights[n]) {
 				if (keys[w - weights[n]] == 1) {

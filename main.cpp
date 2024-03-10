@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <boost/filesystem.hpp>
 #include <vector>
 #include <queue>
 #include <cmath>
@@ -136,22 +137,23 @@ int main(int argc, char** argv) {
 	std::string text; 
 	Problem problem;
 	boolean generate_task = TRUE;
+	boolean use_generated = TRUE;
 
 	std::vector <std::string> methods;
 	methods.push_back("Classical_DP");
-	methods.push_back("DP_with_left_bounds");
-	methods.push_back("DP_with_cache");
+	//methods.push_back("DP_with_left_bounds");
+	//methods.push_back("DP_with_cache");
 	methods.push_back("DP_with_lower_bounds_and_cache"); // not correct 
-	methods.push_back("Classical_BnB");
+	methods.push_back("Classical_BnB"); // not correct 
 	methods.push_back("BnB_with_cache"); // not correct 
-	methods.push_back("Minknap");
-	methods.push_back("Expknap");
-	methods.push_back("Expknap_with_cache");
+	//methods.push_back("Minknap");
+	//methods.push_back("Expknap");
+	//methods.push_back("Expknap_with_cache");
 
 	double *result = 0;
 	if (generate_task) {
 		int number_tasks = 10;
-		const char* types_benchmarks[1] = { "even_odd_subset_sum",
+		const char* types_benchmarks[1] = { "uncorellated",
 			 };
 
 		// "uncorellated", "strongly_correlated", "subset_sum", "weakly_correlated"
@@ -164,7 +166,26 @@ int main(int argc, char** argv) {
 
 		for (int type_bech = 0; type_bech < 1; type_bech++) {
 			for (int i = 1; i <= number_tasks; i++) {
-				problem.generate_problem(10000, 1000, i, number_tasks, types_benchmarks[type_bech]);
+				std::ofstream myfile;
+				std::string str(types_benchmarks[type_bech]);
+
+				if (use_generated) {
+					std::string filepath = "C:/Users/Bural/Documents/PhD/data_generated/" + str + "/" + "4.txt";
+					problem.read_data_from_file(filepath);
+				}
+				else {
+					problem.generate_problem(5, 10, i, number_tasks, types_benchmarks[type_bech]);
+
+					
+
+					myfile.open("C:/Users/Bural/Documents/PhD/data_generated/" + str + "/" + std::to_string(i) + ".txt");
+					myfile << problem.get_number_items() << " " << problem.get_W();
+					for (int j = 1; j <= problem.get_number_items(); j++) {
+						myfile << "\n" << problem.get_values()[j] << " " << problem.get_weights()[j];
+					}
+					myfile.close();
+				}
+
 				std::cout << "------------------"<< types_benchmarks[type_bech] << " " << i <<"--------------------------" << std::endl;
 				for (int m = 0; m < methods.size(); m++) {
 					
@@ -175,7 +196,7 @@ int main(int argc, char** argv) {
 						std::string str(types_benchmarks[type_bech]);
 						std::string str_m(methods[m]);
 						
-						myfile.open("C:/Users/EBurashnikov/source/repos/Knapsack/Knapsack/data_generated/" + str + "/result_" + str_m +"_" + std::to_string(i) + ".txt");
+						myfile.open("C:/Users/Admin/source/repos/Knapsack_v2/data_generated/" + str + "/result_" + str_m +"_" + std::to_string(i) + ".txt");
 						myfile << result[0] << " " << long(result[1]) << " " << long(result[2]);
 						myfile.close();
 					}
@@ -207,20 +228,28 @@ int main(int argc, char** argv) {
 		// multiple_correlated profit_ceiling circle quadratic_fit  cubic_fit random_ceiling profit_ceiling
 	} 
 	else {
-		std::vector<std::string>path_to_folders = { "data/large_scale",
-				"data/large_scale-optimum",
-				"data/low-dimensional",
-				"data/low-dimensional-optimum" };
+		std::vector<std::string>path_to_folders = { "C:/Users/Bural/Documents/PhD/Knapsack_cpp/Knapsack_cpp/data/large_scale/",
+				"C:/Users/Bural/Documents/PhD/Knapsack_cpp/Knapsack_cpp/data/large_scale-optimum/",
+				"C:/Users/Bural/Documents/PhD/Knapsack_cpp/Knapsack_cpp/data/low-dimensional/",
+				"C:/Users/Bural/Documents/PhD/Knapsack_cpp/Knapsack_cpp/data/low-dimensional-optimum/" };
+		std::vector<std::string> files;
+		
+		for (const auto& entry : boost::filesystem::directory_iterator(path_to_folders[2])) {
+			files.push_back(entry.path().filename().string());
+		}
+		for (int j = 0; j < files.size(); j++) { //files.size()
+			std::string filepath = path_to_folders[2] + files[j];// + files[j];  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
 
-		std::string filepath = path_to_folders[0] + "/knapPI_3_2000_1000_1";  // "/knapPI_1_1000_1000_1" "/f4_l-d_kp_4_11" "/f8_l-d_kp_23_10000" "/f3_l-d_kp_4_20"
+			cout << filepath << endl;
 
+			problem.read_data_from_file(filepath);
+			for (int i = 0; i < methods.size(); i++) {
+				//std::cout << methods[i] << " mean run time " << float(time_run) << ", Solution " << solution.first << " Iterations " << solution.second << std::endl;
+				run_one_problem(problem, methods[i]);
 
-		problem.read_data_from_file(filepath);
-		for (int i = 0; i < methods.size(); i++) {
-			//std::cout << methods[i] << " mean run time " << float(time_run) << ", Solution " << solution.first << " Iterations " << solution.second << std::endl;
-			run_one_problem(problem, methods[i]);
-
-		} //  "Classical_DP" "DP_with_left_bounds" "DP_with_cache" "DP_with_lower_bounds_and_cache" "Classical_BnB" "BnB_with_cache"
+			} //  "Classical_DP" "DP_with_left_bounds" "DP_with_cache" "DP_with_lower_bounds_and_cache" "Classical_BnB" "BnB_with_cache"
+			problem.clear();
+		}
 	}
 
 	return 0;
